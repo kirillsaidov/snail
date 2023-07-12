@@ -20,6 +20,7 @@ file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/inc/*.h)
 
 # include directories
 include_directories(${PROJECT_SOURCE_DIR}/inc/)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/)
 
 # building library/binary
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS}) # for libraries
