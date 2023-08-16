@@ -2,7 +2,34 @@
 #define SNAIL_CANVAS_H
 
 /** CANVAS MODULE
-    - ...
+ *  - snl_canvas_create
+ *  - snl_canvas_destroy
+ *  - snl_canvas_get_width
+ *  - snl_canvas_get_height
+ *  - snl_canvas_render_line
+ *  - snl_canvas_render_circle
+ *  - snl_canvas_render_ellipse
+ *  - snl_canvas_render_rectangle
+ *  - snl_canvas_render_polygon_begin
+ *  - snl_canvas_render_polygon_point
+ *  - snl_canvas_render_polygon_end
+ *  - snl_canvas_render_polyline_begin
+ *  - snl_canvas_render_polyline_point
+ *  - snl_canvas_render_polyline_end
+ *  - snl_canvas_render_curve
+ *  - snl_canvas_render_curve2
+ *  - snl_canvas_render_path_begin
+ *  - snl_canvas_render_path_line_to
+ *  - snl_canvas_render_path_move_by
+ *  - snl_canvas_render_path_end
+ *  - snl_canvas_render_text
+ *  - snl_canvas_render_text2
+ *  - snl_canvas_render_text3
+ *  - snl_canvas_undo
+ *  - snl_canvas_translate
+ *  - snl_canvas_reset_translation
+ *  - snl_canvas_fill
+ *  - snl_canvas_save
 */
 
 #include <stdint.h>
@@ -63,9 +90,39 @@ typedef struct SnailAppearance {
 
 // stroke_width, stroke_opacity, stroke_color, fill_opacity, fill_color
 #define SNL_APPEARANCE(sw, so, sc, fo, fc) ((snl_appearance_t) {sw, so, sc, fo, fc})
-#define SNL_APPEARANCE_DEFAULT ((snl_appearance_t) {1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE})
+#define SNL_APPEARANCE_DEFAULT SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE)
 
-static const char *const 
+// available font family
+#define SNL_FONT_ARIAL           "arial" 
+#define SNL_FONT_ARIAL_BLACK     "arial black" 
+#define SNL_FONT_HEVETICA        "hevetica"
+#define SNL_FONT_VERDANA         "verdana"
+#define SNL_FONT_TAHOMA          "tahoma"
+#define SNL_FONT_TREBUCHET_MS    "trebuchet ms"
+#define SNL_FONT_IMPACT          "impact"
+#define SNL_FONT_GILL_SANS       "gill sans"
+#define SNL_FONT_TIMES_NEW_ROMAN "times new roman"
+#define SNL_FONT_GEORGIA         "georgia"
+#define SNL_FONT_PALATINO        "palatino"
+#define SNL_FONT_BASKERVILLE     "baskerville"
+#define SNL_FONT_COURIER         "courier"
+#define SNL_FONT_MONACO          "monaco"
+#define SNL_FONT_LUMINARI        "luminari"
+#define SNL_FONT_COMIC_SANS_MS   "comic sans ms"
+
+// available font weight
+#define SNL_FONT_WEIGHT_NORMAL "normal"
+#define SNL_FONT_WEIGHT_BOLD   "bold"
+
+// available font styles
+#define SNL_FONT_STYLE_NORMAL "normal"
+#define SNL_FONT_STYLE_ITALIC "italic"
+
+// available text decoration styles
+#define SNL_TEXT_UNDERLINE "underline"
+#define SNL_TEXT_OVERLINE "overline"
+#define SNL_TEXT_LINE_THROUGH "line-through"
+#define SNL_TEXT_NONE ""
 
 // font decoration
 typedef struct SnailTextDecoration {
@@ -76,6 +133,10 @@ typedef struct SnailTextDecoration {
     const char *font_style;
     const char *text_decoration;
 } snl_text_decoration_t;
+
+// font_size, text_rotation, font_family, font_weight, font_style, text_decoration
+#define SNL_TEXT_DECORATION(fsz, tr, ff, fw, fs, td) ((snl_text_decoration_t) {fsz, tr, ff, fw, fs, td})
+#define SNL_TEXT_DECORATION_DEFAULT(fsz, tr, ff, fw, fs, td) SNL_TEXT_DECORATION(10, 0, SNL_FONT_ARIAL, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
 
 // point(x, y)
 typedef struct SnailPoint {
@@ -89,7 +150,7 @@ typedef struct SnailPoint {
 typedef struct SnailCanvas {
     uint32_t width, height;
     int32_t translateX, translateY;
-    vt_str_t *canvas;
+    vt_str_t *surface;
 } snl_canvas_t;
 
 /**
@@ -124,47 +185,160 @@ uint32_t snl_canvas_get_width(const snl_canvas_t *const canvas);
  */
 uint32_t snl_canvas_get_height(const snl_canvas_t *const canvas);
 
-
-
+/**
+ * @brief Render a single line to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param start starting point of the line
+ * @param end ending point of the line
+ * @param appearance outlook
+ */
 void snl_canvas_render_line(
     snl_canvas_t *const canvas, 
     const snl_point_t start, const snl_point_t end, 
     const snl_appearance_t appearance
 );
 
+/**
+ * @brief Render a circle to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param origin circle origin
+ * @param radius circle radius
+ * @param appearance outlook
+ * @return None
+ */
 void snl_canvas_render_circle(
     snl_canvas_t *const canvas, 
     const struct SnailPoint origin, const uint32_t radius, 
     const struct SnailAppearance appearance
 );
 
+/**
+ * @brief Render an ellipse to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param origin ellipse origin
+ * @param radius along the x and y axis
+ * @param appearance outlook
+ * @return None
+ */
 void snl_canvas_render_ellipse(
     snl_canvas_t *const canvas, 
     const struct SnailPoint origin, const struct SnailPoint radius,
     const struct SnailAppearance appearance
 );
 
+/**
+ * @brief Render a rectangle to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param pos rectangle position
+ * @param size rectangle width and height
+ * @param radius corner smoothness
+ * @param appearance outlook
+ * @return None
+ */
 void snl_canvas_render_rectangle(
     snl_canvas_t *const canvas, 
     const snl_point_t pos, const snl_point_t size, const uint32_t radius, 
     const snl_appearance_t appearance
 );
 
-// todo: think
+/**
+ * @brief Start rendering a polygon to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point starting point
+ * @return None
+ * 
+ * @note called before <snl_canvas_render_polygon_point()> calls
+ */
 void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas, const snl_point_t point);
+
+/**
+ * @brief Continue rendering a polygon to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point next polygon point
+ * @return None
+ * 
+ * @note called between <snl_canvas_render_polygon_begin()> and <snl_canvas_render_polygon_end()>
+ */
 void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const snl_point_t point);
+
+/**
+ * @brief Finish rendering a polygon to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point last point
+ * @param appearance outlook
+ * @return None
+ * 
+ * @note called after <snl_canvas_render_polygon_point()> calls
+ */
 void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
 
-void snl_canvas_render_polyline_start(snl_canvas_t *const canvas, const snl_point_t point);
+/**
+ * @brief Start rendering a polyline to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point starting point
+ * @return None
+ * 
+ * @note called before <snl_canvas_render_polyline_point()> calls
+ */
+void snl_canvas_render_polyline_begin(snl_canvas_t *const canvas, const snl_point_t point);
+
+/**
+ * @brief Continue rendering a polyline to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point next polyline point
+ * @return None
+ * 
+ * @note called between <snl_canvas_render_polyline_begin()> and <snl_canvas_render_polyline_end()>
+ */
 void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, const snl_point_t point);
+
+/**
+ * @brief Finish rendering a polyline to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point last point
+ * @param appearance outlook
+ * @return None
+ * 
+ * @note called after <snl_canvas_render_polyline_point()> calls
+ */
 void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
 
+/**
+ * @brief Render a curve to canvas surface with equal curvature
+
+ * @param canvas canvas instance
+ * @param start starting point
+ * @param end ending point
+ * @param appearance outlook
+ * @return None
+ */
 void snl_canvas_render_curve(
     snl_canvas_t *const canvas, 
     const snl_point_t start, const snl_point_t end, 
     const snl_appearance_t appearance
 );
 
+/**
+ * @brief Render a curve to canvas surface with custom curvature
+
+ * @param canvas canvas instance
+ * @param start starting point
+ * @param end ending point
+ * @param curve_height custom curve height
+ * @param curvature custom curvature
+ * @param appearance outlook
+ * @return None
+ */
 void snl_canvas_render_curve2(
     snl_canvas_t *const canvas, 
     const snl_point_t start, const snl_point_t end, 
@@ -172,22 +346,137 @@ void snl_canvas_render_curve2(
     const snl_appearance_t appearance
 );
 
+/**
+ * @brief Start path rendering to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point starting point
+ * @return None
+ * 
+ * @note called before <snl_canvas_render_path_line_to()> and <snl_canvas_render_path_move_by()> calls
+ */
 void snl_canvas_render_path_begin(snl_canvas_t *const canvas, const snl_point_t point);
+
+/**
+ * @brief Render path to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point next point
+ * @return None
+ * 
+ * @note called between <snl_canvas_render_path_begin()> and <snl_canvas_render_path_end()> calls
+ */
 void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, const snl_point_t point);
+
+/**
+ * @brief Render path to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point amount to move by from previous point
+ * @return None
+ * 
+ * @note called between <snl_canvas_render_path_begin()> and <snl_canvas_render_path_end()> calls
+ */
 void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl_point_t amount);
+
+/**
+ * @brief End path rendering to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param point ending point
+ * @return None
+ * 
+ * @note called after <snl_canvas_render_path_line_to()> and <snl_canvas_render_path_move_by()> calls
+ */
 void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
 
-void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text);
-void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, );
+/**
+ * @brief Render text to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param pos text position
+ * @param text text value
+ * @param font_size font size
+ * @return None
+ * 
+ * @note see also <snl_canvas_render_text2()> and <snl_canvas_render_text3()>
+ */
+void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size);
 
+/**
+ * @brief Render text to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param pos text position
+ * @param text text value
+ * @param font_size font size
+ * @param font_family font family
+ * @return None
+ * 
+ * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text3()>
+ */
+void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family);
 
+/**
+ * @brief Render text to canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param pos text position
+ * @param text text value
+ * @param td text decoration settings
+ * @return None
+ * 
+ * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text2()>
+ */
+void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const snl_text_decoration_t td);
 
+/**
+ * @brief Undo the last rendering operation
+ * 
+ * @param canvas canvas instance
+ * @return None
+ */
 void snl_canvas_undo(snl_canvas_t *const canvas);
+
+/**
+ * @brief Translate canvas view
+ * 
+ * @param canvas canvas instance
+ * @param x translate view along the horizontal axis
+ * @param y translate view along the vertical axis
+ * @return None
+ * 
+ * @note does not effect previosly rendered shapes
+ */
 void snl_canvas_translate(snl_canvas_t *const canvas, const int32_t x, const int32_t y);
+
+/**
+ * @brief Reset canvas translation
+ * 
+ * @param canvas canvas instance
+ * @return None
+ * 
+ * @note does not effect previosly rendered shapes
+ */
 void snl_canvas_reset_translation(snl_canvas_t *const canvas);
+
+/**
+ * @brief Color fill the canvas surface
+ * 
+ * @param canvas canvas instance
+ * @param color color
+ * @return None
+ */
 void snl_canvas_fill(snl_canvas_t *const canvas, struct SnailColor color);
+
+/**
+ * @brief Save canvas
+ * 
+ * @param canvas canvas instance
+ * @param filename name
+ * @return None
+ */
 void snl_canvas_save(const snl_canvas_t *const canvas, const char *const filename);
 
 #endif // SNAIL_CANVAS_H
-
 
