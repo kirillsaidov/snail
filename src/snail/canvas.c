@@ -1,9 +1,13 @@
 #include "snail/canvas.h"
 
 snl_canvas_t snl_canvas_create(const uint32_t width, const uint32_t height);
+
 void snl_canvas_destroy(snl_canvas_t *canvas);
+
 uint32_t snl_canvas_get_width(const snl_canvas_t *const canvas);
+
 uint32_t snl_canvas_get_height(const snl_canvas_t *const canvas);
+
 void snl_canvas_render_line(
     snl_canvas_t *const canvas, 
     const snl_point_t start, const snl_point_t end, 
