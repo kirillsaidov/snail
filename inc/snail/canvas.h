@@ -50,7 +50,7 @@ struct SnailColor {
 #define SNL_COLOR_NONE          SNL_COLOR(  0,   0,   0,   0)
 
 // appearance configuration
-struct SnailAppearance {
+typedef struct SnailAppearance {
     // stroke
     uint8_t stroke_width;
     float stroke_opacity;
@@ -59,7 +59,31 @@ struct SnailAppearance {
     // fill
     float fill_opacity;
     struct SnailColor fill_color;
-};
+} snl_appearance_t;
+
+// stroke_width, stroke_opacity, stroke_color, fill_opacity, fill_color
+#define SNL_APPEARANCE(sw, so, sc, fo, fc) ((snl_appearance_t) {sw, so, sc, fo, fc})
+#define SNL_APPEARANCE_DEFAULT ((snl_appearance_t) {1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE})
+
+static const char *const 
+
+// font decoration
+typedef struct SnailTextDecoration {
+    uint32_t font_size;
+    int32_t text_rotation;
+    const char *font_family;
+    const char *font_weight;
+    const char *font_style;
+    const char *text_decoration;
+} snl_text_decoration_t;
+
+// point(x, y)
+typedef struct SnailPoint {
+    int32_t x, y;
+} snl_point_t;
+
+// set point easily
+#define SNL_POINT(x, y) ((snl_point_t) {x, y})
 
 // svg draw canvas
 typedef struct SnailCanvas {
@@ -102,20 +126,59 @@ uint32_t snl_canvas_get_height(const snl_canvas_t *const canvas);
 
 
 
-void snl_canvas_render_line(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_circle(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_ellipse(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_rectangle(snl_canvas_t *const canvas, SHAPE);
+void snl_canvas_render_line(
+    snl_canvas_t *const canvas, 
+    const snl_point_t start, const snl_point_t end, 
+    const snl_appearance_t appearance
+);
+
+void snl_canvas_render_circle(
+    snl_canvas_t *const canvas, 
+    const struct SnailPoint origin, const uint32_t radius, 
+    const struct SnailAppearance appearance
+);
+
+void snl_canvas_render_ellipse(
+    snl_canvas_t *const canvas, 
+    const struct SnailPoint origin, const struct SnailPoint radius,
+    const struct SnailAppearance appearance
+);
+
+void snl_canvas_render_rectangle(
+    snl_canvas_t *const canvas, 
+    const snl_point_t pos, const snl_point_t size, const uint32_t radius, 
+    const snl_appearance_t appearance
+);
 
 // todo: think
-void snl_canvas_render_polygon(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_polyline(snl_canvas_t *const canvas, SHAPE);
+void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
 
-void snl_canvas_render_curve(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_path_begin(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_path_move_to(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_path_end(snl_canvas_t *const canvas, SHAPE);
-void snl_canvas_render_text(snl_canvas_t *const canvas, SHAPE);
+void snl_canvas_render_polyline_start(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
+
+void snl_canvas_render_curve(
+    snl_canvas_t *const canvas, 
+    const snl_point_t start, const snl_point_t end, 
+    const snl_appearance_t appearance
+);
+
+void snl_canvas_render_curve2(
+    snl_canvas_t *const canvas, 
+    const snl_point_t start, const snl_point_t end, 
+    const int32_t curve_height, const int32_t curvature, 
+    const snl_appearance_t appearance
+);
+
+void snl_canvas_render_path_begin(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl_point_t amount);
+void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
+
+void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text);
+void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, );
 
 
 
