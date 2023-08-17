@@ -92,7 +92,7 @@ typedef struct SnailAppearance {
 #define SNL_APPEARANCE(sw, so, sc, fo, fc) ((snl_appearance_t) {sw, so, sc, fo, fc})
 #define SNL_APPEARANCE_DEFAULT SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE)
 
-// available font family
+// websafe fonts
 #define SNL_FONT_ARIAL           "arial" 
 #define SNL_FONT_ARIAL_BLACK     "arial black" 
 #define SNL_FONT_HEVETICA        "hevetica"
@@ -148,7 +148,7 @@ typedef struct SnailPoint {
 
 // svg draw canvas
 typedef struct SnailCanvas {
-    uint32_t width, height;
+    const uint32_t width, height;
     int32_t translateX, translateY;
     vt_str_t *surface;
 } snl_canvas_t;
@@ -170,20 +170,13 @@ snl_canvas_t snl_canvas_create(const uint32_t width, const uint32_t height);
 void snl_canvas_destroy(snl_canvas_t *canvas);
 
 /**
- * @brief Get canvas width
+ * @brief Preallocates memory for fast rendering 
  * 
  * @param canvas canvas instance
- * @return uint32_t 
+ * @param bytes amount
+ * @return None 
  */
-uint32_t snl_canvas_get_width(const snl_canvas_t *const canvas);
-
-/**
- * @brief Get canvas height
- * 
- * @param canvas canvas instance
- * @return uint32_t 
- */
-uint32_t snl_canvas_get_height(const snl_canvas_t *const canvas);
+void snl_cavas_preallocate(snl_canvas_t *const canvas, uint32_t bytes);
 
 /**
  * @brief Render a single line to canvas surface
