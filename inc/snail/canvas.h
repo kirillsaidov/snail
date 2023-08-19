@@ -4,8 +4,6 @@
 /** CANVAS MODULE
  *  - snl_canvas_create
  *  - snl_canvas_destroy
- *  - snl_canvas_get_width
- *  - snl_canvas_get_height
  *  - snl_canvas_render_line
  *  - snl_canvas_render_circle
  *  - snl_canvas_render_ellipse
@@ -34,6 +32,7 @@
 
 #include <stdint.h>
 #include "vita/container/str.h"
+#include "vita/system/fileio.h"
 
 // RGBA color structure
 struct SnailColor {
@@ -148,7 +147,7 @@ typedef struct SnailPoint {
 
 // svg draw canvas
 typedef struct SnailCanvas {
-    const uint32_t width, height;
+    uint32_t width, height;
     int32_t translateX, translateY;
     vt_str_t *surface;
 } snl_canvas_t;
@@ -158,9 +157,9 @@ typedef struct SnailCanvas {
  * 
  * @param width canvas width
  * @param height canvas height
- * @return snl_canvas_t 
+ * @return snl_canvas_t*
  */
-snl_canvas_t snl_canvas_create(const uint32_t width, const uint32_t height);
+snl_canvas_t *snl_canvas_create(const uint32_t width, const uint32_t height);
 
 /**
  * @brief Release canvas memory
@@ -176,7 +175,7 @@ void snl_canvas_destroy(snl_canvas_t *canvas);
  * @param bytes amount
  * @return None 
  */
-void snl_cavas_preallocate(snl_canvas_t *const canvas, uint32_t bytes);
+void snl_canvas_preallocate(snl_canvas_t *const canvas, uint32_t bytes);
 
 /**
  * @brief Render a single line to canvas surface

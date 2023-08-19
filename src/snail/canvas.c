@@ -1,16 +1,46 @@
 #include "snail/canvas.h"
 
-snl_canvas_t snl_canvas_create(const uint32_t width, const uint32_t height);
+snl_canvas_t *snl_canvas_create(const uint32_t width, const uint32_t height) {
+    snl_canvas_t *canvas = VT_CALLOC(sizeof(snl_canvas_t));
+    *canvas = (snl_canvas_t) {
+        .width = width, 
+        .height = height,
+        .surface = vt_str_create_len(VT_ARRAY_DEFAULT_INIT_ELEMENTS, NULL)
+    };
 
-void snl_canvas_destroy(snl_canvas_t *canvas);
+    // initialize the canvas
+    vt_str_appendf(
+        canvas->surface,
+        "<svg width='%u' height='%u' viewBox='0 0 %u %u' xmlns='%s' version='%s' xmlns:xlink='%s'>\n",
+        width, height, width, height, "http://www.w3.org/2000/svg", "1.1", "http://www.w3.org/1999/xlink"
+    );
 
-void snl_cavas_preallocate(snl_canvas_t *const canvas, uint32_t bytes);
+    return canvas;
+}
+
+void snl_canvas_destroy(snl_canvas_t *canvas) {
+    vt_str_destroy(canvas->surface);
+    VT_FREE(canvas);
+}
+
+void snl_canvas_preallocate(snl_canvas_t *const canvas, uint32_t bytes) {
+    vt_str_reserve(canvas->surface, bytes);
+}
 
 void snl_canvas_render_line(
     snl_canvas_t *const canvas, 
     const snl_point_t start, const snl_point_t end, 
     const snl_appearance_t appearance
-);
+) {
+    const char *const fmt = "<line x1='%d' y1='%d' x2='%d' y2='%d' style='stroke:rgba(%u, %u, %u, %u);stroke-width:%u;stroke-opacity:%.2f'/>\n";
+    vt_str_appendf(
+        canvas->surface, fmt, 
+        start.x, start.y, end.x, end.y,
+        appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
+        appearance.stroke_width, appearance.stroke_opacity
+    );
+}
+
 void snl_canvas_render_circle(
     snl_canvas_t *const canvas, 
     const struct SnailPoint origin, const uint32_t radius, 
@@ -57,6 +87,14 @@ void snl_canvas_undo(snl_canvas_t *const canvas);
 void snl_canvas_translate(snl_canvas_t *const canvas, const int32_t x, const int32_t y);
 void snl_canvas_reset_translation(snl_canvas_t *const canvas);
 void snl_canvas_fill(snl_canvas_t *const canvas, struct SnailColor color);
-void snl_canvas_save(const snl_canvas_t *const canvas, const char *const filename);
+
+
+void snl_canvas_save(const snl_canvas_t *const canvas, const char *const filename) {
+    // finalize the canvas
+    vt_str_appendf(canvas->surface, "</svg>");
+
+    // save
+    vt_file_writeln(filename, vt_str_z(canvas->surface));
+}
 
 
