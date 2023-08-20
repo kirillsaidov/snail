@@ -167,7 +167,7 @@ void snl_canvas_save(const snl_canvas_t *const canvas, const char *const filenam
     VT_DEBUG_ASSERT(filename != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
 
     // finalize the canvas
-    vt_str_appendf(canvas->surface, "</svg>");
+    vt_str_append(canvas->surface, "</svg>");
 
     // save
     vt_file_writeln(filename, vt_str_z(canvas->surface));

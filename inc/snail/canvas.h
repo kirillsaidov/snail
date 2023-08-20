@@ -89,7 +89,7 @@ typedef struct SnailAppearance {
 
 // stroke_width, stroke_opacity, stroke_color, fill_opacity, fill_color
 #define SNL_APPEARANCE(sw, so, sc, fo, fc) ((snl_appearance_t) {sw, so, sc, fo, fc})
-#define SNL_APPEARANCE_DEFAULT SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE)
+#define SNL_APPEARANCE_DEFAULT SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE)
 
 // websafe fonts
 #define SNL_FONT_ARIAL           "arial" 
