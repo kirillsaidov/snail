@@ -7,4 +7,8 @@
 <rect x='270' y='10' width='40' height='40' rx='0' ry='0' stroke-width='7' stroke='rgba(255, 215, 0, 255)' fill='rgba(255, 255, 0, 255)' fill-opacity='1.00' stroke-opacity='1.00'/>
 <polygon points='320, 10 380, 10 400, 30 390, 50 340, 40 ' style='fill:rgba(0, 255, 255, 255);stroke:rgba(0, 0, 255, 255);stroke-width:3;fill-opacity:1.00;stroke-opacity:1.00;fill-rule:nonzero;'/>
 <polyline points='410, 10 470, 10 490, 30 480, 50 430, 40 ' style='fill:rgba(0, 0, 0, 0);stroke:rgba(255, 165, 0, 255);stroke-width:7;fill-opacity:1.00;stroke-opacity:1.00;'/>
+<path d='M 10 80 q 25 25 50 0' stroke-width='1' stroke='rgba(0, 0, 0, 255)' fill='rgba(0, 0, 0, 0)' fill-opacity='1.00' stroke-opacity='1.00'/>
+<path d='M 40 120 q 20 20 0 40' stroke-width='3' stroke='rgba(0, 128, 0, 255)' fill='rgba(0, 0, 255, 255)' fill-opacity='1.00' stroke-opacity='1.00'/>
+<path d='M 70 80 q 80 -40 70 0' stroke-width='3' stroke='rgba(0, 128, 128, 255)' fill='rgba(0, 0, 0, 0)' fill-opacity='1.00' stroke-opacity='1.00'/>
+<path d='M 120 120 q 80 50 0 40' stroke-width='5' stroke='rgba(150, 75, 0, 255)' fill='rgba(0, 0, 0, 0)' fill-opacity='1.00' stroke-opacity='1.00'/>
 </svg>

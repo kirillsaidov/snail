@@ -42,6 +42,14 @@ int main(void) {
     snl_canvas_render_polyline_point(&canvas, SNL_POINT(430, 40));
     snl_canvas_render_polyline_end(&canvas, SNL_APPEARANCE(7, 1, SNL_COLOR_ORANGE, 1, SNL_COLOR_NONE));
 
+    // curve
+    snl_canvas_render_curve(&canvas, SNL_POINT(10, 80), SNL_POINT(60, 80), SNL_APPEARANCE_DEFAULT);
+    snl_canvas_render_curve(&canvas, SNL_POINT(40, 120), SNL_POINT(40, 160), SNL_APPEARANCE(3, 1, SNL_COLOR_GREEN, 1, SNL_COLOR_BLUE));
+    snl_canvas_render_curve2(&canvas, SNL_POINT(70, 80), SNL_POINT(140, 80), 80, -40, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_NONE));
+    snl_canvas_render_curve2(&canvas, SNL_POINT(120, 120), SNL_POINT(120, 160), 80, 50, SNL_APPEARANCE(5, 1, SNL_COLOR_BROWN, 1, SNL_COLOR_NONE));
+
+    // 
+
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));
     printf("- Canvas capacity: %zu\n", vt_str_capacity(canvas.surface));
