@@ -71,7 +71,7 @@ void snl_canvas_render_circle(
     // render
     vt_str_appendf(
         canvas->surface,
-        "<circle cx='%u' cy='%u' r='%u' stroke-width='%u' "
+        "<circle cx='%d' cy='%d' r='%u' stroke-width='%u' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' " 
         "fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         origin.x, origin.y, radius, appearance.stroke_width,
@@ -94,7 +94,7 @@ void snl_canvas_render_ellipse(
     // render
     vt_str_appendf(
         canvas->surface,
-        "<ellipse cx='%u' cy='%u' rx='%u' ry='%u' stroke-width='%u' "
+        "<ellipse cx='%d' cy='%d' rx='%d' ry='%d' stroke-width='%u' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' " 
         "fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         origin.x, origin.y, radius.x, radius.y, appearance.stroke_width,
@@ -117,7 +117,7 @@ void snl_canvas_render_rectangle(
     // render
     vt_str_appendf(
         canvas->surface,
-        "<rect x='%u' y='%u' width='%u' height='%u' rx='%u' ry='%u' stroke-width='%u' "
+        "<rect x='%d' y='%d' width='%d' height='%d' rx='%u' ry='%u' stroke-width='%u' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         pos.x, pos.y, size.x, size.y, radius, radius, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
@@ -143,7 +143,7 @@ void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const snl_point
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polygon_start()' before using 'snl_render_polygon_point()'.\n");
 
     // render
-    vt_str_appendf(canvas->surface, "%u, %u ", point.x, point.y);
+    vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
 }
 
 void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_appearance_t appearance, const char *const fill_rule) {
