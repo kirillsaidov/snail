@@ -123,6 +123,11 @@ typedef struct SnailAppearance {
 #define SNL_TEXT_LINE_THROUGH "line-through"
 #define SNL_TEXT_NONE ""
 
+// fill rule for polygon
+#define SNL_FILL_RULE_NONZERO "nonzero"
+#define SNL_FILL_RULE_EVENODD "evenodd"
+#define SNL_FILL_RULE_DEFAULT SNL_FILL_RULE_NONZERO
+
 // font decoration
 typedef struct SnailTextDecoration {
     uint32_t font_size;
@@ -241,12 +246,11 @@ extern void snl_canvas_render_rectangle(
  * @brief Start rendering a polygon to canvas surface
  * 
  * @param canvas canvas instance
- * @param point starting point
  * @return None
  * 
  * @note called before <snl_canvas_render_polygon_point()> calls
  */
-extern void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas, const snl_point_t point);
+extern void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas);
 
 /**
  * @brief Continue rendering a polygon to canvas surface
@@ -263,24 +267,23 @@ extern void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const sn
  * @brief Finish rendering a polygon to canvas surface
  * 
  * @param canvas canvas instance
- * @param point last point
  * @param appearance outlook
- * @return None
+ * @param fill_rule fill rule
+* @return None
  * 
  * @note called after <snl_canvas_render_polygon_point()> calls
  */
-extern void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
+extern void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_appearance_t appearance, const char *const fill_rule);
 
 /**
  * @brief Start rendering a polyline to canvas surface
  * 
  * @param canvas canvas instance
- * @param point starting point
  * @return None
  * 
  * @note called before <snl_canvas_render_polyline_point()> calls
  */
-extern void snl_canvas_render_polyline_begin(snl_canvas_t *const canvas, const snl_point_t point);
+extern void snl_canvas_render_polyline_begin(snl_canvas_t *const canvas);
 
 /**
  * @brief Continue rendering a polyline to canvas surface
@@ -297,13 +300,12 @@ extern void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, const s
  * @brief Finish rendering a polyline to canvas surface
  * 
  * @param canvas canvas instance
- * @param point last point
  * @param appearance outlook
  * @return None
  * 
  * @note called after <snl_canvas_render_polyline_point()> calls
  */
-extern void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
+extern void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_appearance_t appearance);
 
 /**
  * @brief Render a curve to canvas surface with equal curvature

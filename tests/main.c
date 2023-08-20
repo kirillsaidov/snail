@@ -13,7 +13,7 @@ int main(void) {
     printf("- Snail version: %s\n", snail_version.str);
 
     // create canvas
-    snl_canvas_t canvas = snl_canvas_create(1024, 640);
+    snl_canvas_t canvas = snl_canvas_create(512, 512);
     snl_canvas_preallocate(&canvas, 2048);
 
     // render
@@ -24,6 +24,24 @@ int main(void) {
     snl_canvas_render_ellipse(&canvas, SNL_POINT(220, 30), SNL_POINT(40, 25), SNL_APPEARANCE(5, 1, SNL_COLOR_PURPLE, 0.5, SNL_COLOR_DARKORANGE));
     snl_canvas_render_rectangle(&canvas, SNL_POINT(270, 10), SNL_POINT(40, 40), 0, SNL_APPEARANCE(7, 1, SNL_COLOR_GOLD, 1, SNL_COLOR_YELLOW));
     
+    // polygon
+    snl_canvas_render_polygon_begin(&canvas);
+    snl_canvas_render_polygon_point(&canvas, SNL_POINT(320, 10));
+    snl_canvas_render_polygon_point(&canvas, SNL_POINT(380, 10));
+    snl_canvas_render_polygon_point(&canvas, SNL_POINT(400, 30));
+    snl_canvas_render_polygon_point(&canvas, SNL_POINT(390, 50));
+    snl_canvas_render_polygon_point(&canvas, SNL_POINT(340, 40));
+    snl_canvas_render_polygon_end(&canvas, SNL_APPEARANCE(3, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_CYAN), SNL_FILL_RULE_DEFAULT);
+
+    // polyline
+    snl_canvas_render_polyline_begin(&canvas);
+    snl_canvas_render_polyline_point(&canvas, SNL_POINT(410, 10));
+    snl_canvas_render_polyline_point(&canvas, SNL_POINT(470, 10));
+    snl_canvas_render_polyline_point(&canvas, SNL_POINT(490, 30));
+    snl_canvas_render_polyline_point(&canvas, SNL_POINT(480, 50));
+    snl_canvas_render_polyline_point(&canvas, SNL_POINT(430, 40));
+    snl_canvas_render_polyline_end(&canvas, SNL_APPEARANCE(7, 1, SNL_COLOR_ORANGE, 1, SNL_COLOR_NONE));
+
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));
     printf("- Canvas capacity: %zu\n", vt_str_capacity(canvas.surface));
