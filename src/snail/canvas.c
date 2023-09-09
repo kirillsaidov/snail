@@ -140,7 +140,7 @@ void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const snl_point
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
-    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polygon_start()' before using 'snl_render_polygon_point()'.\n");
+    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polygon_begin()' before using 'snl_render_polygon_point()'.\n");
 
     // render
     vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
@@ -176,7 +176,7 @@ void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, const snl_poin
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
-    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polyline_start()' before using 'snl_render_polyline_point()'.\n");
+    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polyline_begin()' before using 'snl_render_polyline_point()'.\n");
 
     // render
     vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
@@ -249,15 +249,61 @@ void snl_canvas_render_curve2(
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
         appearance.fill_opacity, appearance.stroke_opacity
     );
-
 }
 
-void snl_canvas_render_path_begin(snl_canvas_t *const canvas, const snl_point_t point);
-void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, const snl_point_t point);
+void snl_canvas_render_path_begin(snl_canvas_t *const canvas) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget to call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
 
-// TODO: use static previous point to save information
-void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl_point_t amount);
-void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
+    // render
+    vt_str_appendf(canvas->surface, "<polyline points='");
+}
+
+static snl_point_t gi_path_prev_point = SNL_POINT(0, 0);
+void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, const snl_point_t point) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_path_begin()' before using 'snl_render_path_line_to()'.\n");
+
+    // render
+    vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
+
+    // update previous point
+    gi_path_prev_point = point;
+}
+
+void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl_point_t amount) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_path_begin()' before using 'snl_render_path_move_by()'.\n");
+
+    // calculate the new point which will later become our previous point
+    gi_path_prev_point = SNL_POINT(gi_path_prev_point.x + amount.x, gi_path_prev_point.y + amount.y);
+
+    // render
+    vt_str_appendf(canvas->surface, "%d, %d ", gi_path_prev_point.x, gi_path_prev_point.y);
+}
+
+void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance_t appearance) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_path_begin()' before using 'snl_render_path_end()'.\n");
+
+    // render
+    vt_str_appendf(
+        canvas->surface,
+        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%u;fill-opacity:%.2f;stroke-opacity:%.2f;'/>\n",
+        appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
+        appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
+        appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity
+    );
+}
+
 void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size);
 void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family);
 void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const snl_text_decoration_t td);

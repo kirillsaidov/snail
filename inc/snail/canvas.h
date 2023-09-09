@@ -344,12 +344,11 @@ extern void snl_canvas_render_curve2(
  * @brief Start path rendering to canvas surface
  * 
  * @param canvas canvas instance
- * @param point starting point
  * @return None
  * 
  * @note called before <snl_canvas_render_path_line_to()> and <snl_canvas_render_path_move_by()> calls
  */
-extern void snl_canvas_render_path_begin(snl_canvas_t *const canvas, const snl_point_t point);
+extern void snl_canvas_render_path_begin(snl_canvas_t *const canvas);
 
 /**
  * @brief Render path to canvas surface
@@ -377,12 +376,11 @@ extern void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl
  * @brief End path rendering to canvas surface
  * 
  * @param canvas canvas instance
- * @param point ending point
  * @return None
  * 
  * @note called after <snl_canvas_render_path_line_to()> and <snl_canvas_render_path_move_by()> calls
  */
-extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_point_t point, const snl_appearance_t appearance);
+extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance_t appearance);
 
 /**
  * @brief Render text to canvas surface
