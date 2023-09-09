@@ -78,7 +78,7 @@ struct SnailColor {
 // appearance configuration
 typedef struct SnailAppearance {
     // stroke
-    uint8_t stroke_width;
+    int32_t stroke_width;
     float stroke_opacity;
     struct SnailColor stroke_color;
 
@@ -130,7 +130,7 @@ typedef struct SnailAppearance {
 
 // font decoration
 typedef struct SnailTextDecoration {
-    uint32_t font_size;
+    int32_t font_size;
     int32_t text_rotation;
     const char *font_family;
     const char *font_weight;
@@ -152,7 +152,7 @@ typedef struct SnailPoint {
 
 // svg draw canvas
 typedef struct SnailCanvas {
-    const uint32_t width, height;
+    const int32_t width, height;
     int32_t translateX, translateY;
     vt_str_t *surface;
 } snl_canvas_t;
@@ -164,7 +164,7 @@ typedef struct SnailCanvas {
  * @param height canvas height
  * @return snl_canvas_t
  */
-extern snl_canvas_t snl_canvas_create(const uint32_t width, const uint32_t height);
+extern snl_canvas_t snl_canvas_create(const int32_t width, const int32_t height);
 
 /**
  * @brief Release canvas memory
@@ -238,7 +238,7 @@ extern void snl_canvas_render_ellipse(
  */
 extern void snl_canvas_render_rectangle(
     snl_canvas_t *const canvas, 
-    const snl_point_t pos, const snl_point_t size, const uint32_t radius, 
+    const snl_point_t pos, const snl_point_t size, const int32_t radius, 
     const snl_appearance_t appearance
 );
 
@@ -383,7 +383,7 @@ extern void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl
 extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance_t appearance);
 
 /**
- * @brief Render text to canvas surface
+ * @brief Render text to canvas surface with default parameters
  * 
  * @param canvas canvas instance
  * @param pos text position
@@ -396,31 +396,33 @@ extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_app
 extern void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size);
 
 /**
- * @brief Render text to canvas surface
+ * @brief Render text to canvas surface with custom font and color
  * 
  * @param canvas canvas instance
  * @param pos text position
  * @param text text value
  * @param font_size font size
  * @param font_family font family
+ * @param color text color
  * @return None
  * 
  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text3()>
  */
-extern void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family);
+extern void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color);
 
 /**
- * @brief Render text to canvas surface
+ * @brief Render text to canvas surface with custom parameters
  * 
  * @param canvas canvas instance
  * @param pos text position
  * @param text text value
- * @param td text decoration settings
+ * @param appearance text appearance (color, stroke, fill, etc.)
+ * @param td text decoration settings (underline, rotation, font family, etc.)
  * @return None
  * 
  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text2()>
  */
-extern void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const snl_text_decoration_t td);
+extern void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td);
 
 /**
  * @brief Undo the last rendering operation

@@ -57,7 +57,12 @@ int main(void) {
     snl_canvas_render_path_end(&canvas, SNL_APPEARANCE_DEFAULT);
 
     // text
-    // 
+    snl_canvas_render_text(&canvas, SNL_POINT(10, 180), "hello, world!", 14);
+    snl_canvas_render_text2(&canvas, SNL_POINT(10, 195), "hello, world!", 14, SNL_FONT_LUMINARI, SNL_COLOR_CORAL);
+    snl_canvas_render_text3(&canvas, SNL_POINT(10, 215), "hello, world!", 
+        SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME), 
+        SNL_TEXT_DECORATION(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
+    );
 
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));
