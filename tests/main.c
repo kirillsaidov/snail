@@ -80,7 +80,6 @@ int main(void) {
     snl_canvas_reset_translation(&canvas);
     snl_canvas_render_rectangle(&canvas, SNL_POINT(-30, -30), SNL_POINT(60, 60), 0, SNL_APPEARANCE_DEFAULT);
 
-
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));
     printf("- Canvas capacity: %zu\n", vt_str_capacity(canvas.surface));
