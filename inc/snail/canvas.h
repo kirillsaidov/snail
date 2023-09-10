@@ -78,7 +78,7 @@ struct SnailColor {
 // appearance configuration
 typedef struct SnailAppearance {
     // stroke
-    int32_t stroke_width;
+    float stroke_width;
     float stroke_opacity;
     struct SnailColor stroke_color;
 
@@ -130,8 +130,8 @@ typedef struct SnailAppearance {
 
 // font decoration
 typedef struct SnailTextDecoration {
-    int32_t font_size;
-    int32_t text_rotation;
+    float font_size;
+    float text_rotation;
     const char *font_family;
     const char *font_weight;
     const char *font_style;
@@ -144,7 +144,7 @@ typedef struct SnailTextDecoration {
 
 // point(x, y)
 typedef struct SnailPoint {
-    int32_t x, y;
+    float x, y;
 } snl_point_t;
 
 // set point easily
@@ -155,8 +155,8 @@ typedef struct SnailPoint {
 
 // svg draw canvas
 typedef struct SnailCanvas {
-    const int32_t width, height;
-    int32_t translateX, translateY;
+    const float width, height;
+    float translateX, translateY;
     vt_str_t *surface;
 } snl_canvas_t;
 
@@ -167,7 +167,7 @@ typedef struct SnailCanvas {
  * @param height canvas height
  * @return snl_canvas_t
  */
-extern snl_canvas_t snl_canvas_create(const int32_t width, const int32_t height);
+extern snl_canvas_t snl_canvas_create(const float width, const float height);
 
 /**
  * @brief Release canvas memory
@@ -183,7 +183,7 @@ extern void snl_canvas_destroy(snl_canvas_t *canvas);
  * @param bytes amount
  * @return None 
  */
-extern void snl_canvas_preallocate(snl_canvas_t *const canvas, uint32_t bytes);
+extern void snl_canvas_preallocate(snl_canvas_t *const canvas, float bytes);
 
 /**
  * @brief Render a single line to canvas surface
@@ -210,7 +210,7 @@ extern void snl_canvas_render_line(
  */
 extern void snl_canvas_render_circle(
     snl_canvas_t *const canvas, 
-    struct SnailPoint origin, const uint32_t radius, 
+    struct SnailPoint origin, const float radius, 
     const struct SnailAppearance appearance
 );
 
@@ -241,7 +241,7 @@ extern void snl_canvas_render_ellipse(
  */
 extern void snl_canvas_render_rectangle(
     snl_canvas_t *const canvas, 
-    snl_point_t pos, const snl_point_t size, const int32_t radius, 
+    snl_point_t pos, const snl_point_t size, const float radius, 
     const snl_appearance_t appearance
 );
 
@@ -339,7 +339,7 @@ extern void snl_canvas_render_curve(
 extern void snl_canvas_render_curve2(
     snl_canvas_t *const canvas, 
     snl_point_t start, snl_point_t end, 
-    const int32_t curve_height, const int32_t curvature, 
+    const float curve_height, const float curvature, 
     const snl_appearance_t appearance
 );
 
@@ -396,7 +396,7 @@ extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_app
  * 
  * @note see also <snl_canvas_render_text2()> and <snl_canvas_render_text3()>
  */
-extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size);
+extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size);
 
 /**
  * @brief Render text to canvas surface with custom font and color
@@ -411,7 +411,7 @@ extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, 
  * 
  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text3()>
  */
-extern void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color);
+extern void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color);
 
 /**
  * @brief Render text to canvas surface with custom parameters
@@ -445,7 +445,7 @@ extern void snl_canvas_undo(snl_canvas_t *const canvas);
  * 
  * @note does not effect previosly rendered shapes
  */
-extern void snl_canvas_translate(snl_canvas_t *const canvas, const int32_t x, const int32_t y);
+extern void snl_canvas_translate(snl_canvas_t *const canvas, const float x, const float y);
 
 /**
  * @brief Reset canvas translation

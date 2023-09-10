@@ -2,7 +2,7 @@
 
 static bool snl_can_continue();
 
-snl_canvas_t snl_canvas_create(const int32_t width, const int32_t height) {
+snl_canvas_t snl_canvas_create(const float width, const float height) {
     snl_canvas_t canvas = (snl_canvas_t) {
         .width = width, 
         .height = height,
@@ -12,7 +12,7 @@ snl_canvas_t snl_canvas_create(const int32_t width, const int32_t height) {
     // initialize the canvas
     vt_str_appendf(
         canvas.surface,
-        "<svg width='%d' height='%d' viewBox='0 0 %d %d' xmlns='%s' version='%s' xmlns:xlink='%s'>\n",
+        "<svg width='%.2f' height='%.2f' viewBox='0 0 %.2f %.2f' xmlns='%s' version='%s' xmlns:xlink='%s'>\n",
         width, height, width, height, "http://www.w3.org/2000/svg", "1.1", "http://www.w3.org/1999/xlink"
     );
 
@@ -28,7 +28,7 @@ void snl_canvas_destroy(snl_canvas_t *canvas) {
     vt_str_destroy(canvas->surface);
 }
 
-void snl_canvas_preallocate(snl_canvas_t *const canvas, uint32_t bytes) {
+void snl_canvas_preallocate(snl_canvas_t *const canvas, float bytes) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
@@ -55,7 +55,7 @@ void snl_canvas_render_line(
     // render
     vt_str_appendf(
         canvas->surface, 
-        "<line x1='%d' y1='%d' x2='%d' y2='%d' style='stroke:rgba(%u, %u, %u, %u);stroke-width:%d;stroke-opacity:%.2f'/>\n", 
+        "<line x1='%.2f' y1='%.2f' x2='%.2f' y2='%.2f' style='stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;stroke-opacity:%.2f'/>\n", 
         start.x, start.y, end.x, end.y,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.stroke_width, appearance.stroke_opacity
@@ -64,7 +64,7 @@ void snl_canvas_render_line(
 
 void snl_canvas_render_circle(
     snl_canvas_t *const canvas, 
-    struct SnailPoint origin, const uint32_t radius, 
+    struct SnailPoint origin, const float radius, 
     const struct SnailAppearance appearance
 ) {
     // check for invalid input
@@ -78,7 +78,7 @@ void snl_canvas_render_circle(
     // render
     vt_str_appendf(
         canvas->surface,
-        "<circle cx='%d' cy='%d' r='%u' stroke-width='%d' "
+        "<circle cx='%.2f' cy='%.2f' r='%.2f' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' " 
         "fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         origin.x, origin.y, radius, appearance.stroke_width,
@@ -104,7 +104,7 @@ void snl_canvas_render_ellipse(
     // render
     vt_str_appendf(
         canvas->surface,
-        "<ellipse cx='%d' cy='%d' rx='%d' ry='%d' stroke-width='%d' "
+        "<ellipse cx='%.2f' cy='%.2f' rx='%.2f' ry='%.2f' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' " 
         "fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         origin.x, origin.y, radius.x, radius.y, appearance.stroke_width,
@@ -116,7 +116,7 @@ void snl_canvas_render_ellipse(
 
 void snl_canvas_render_rectangle(
     snl_canvas_t *const canvas, 
-    snl_point_t pos, const snl_point_t size, const int32_t radius, 
+    snl_point_t pos, const snl_point_t size, const float radius, 
     const snl_appearance_t appearance
 ) {
     // check for invalid input
@@ -130,7 +130,7 @@ void snl_canvas_render_rectangle(
     // render
     vt_str_appendf(
         canvas->surface,
-        "<rect x='%d' y='%d' width='%d' height='%d' rx='%d' ry='%d' stroke-width='%d' "
+        "<rect x='%.2f' y='%.2f' width='%.2f' height='%.2f' rx='%.2f' ry='%.2f' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         pos.x, pos.y, size.x, size.y, radius, radius, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
@@ -159,7 +159,7 @@ void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, snl_point_t poi
     point = SNL_POINT_ADJUST(point, canvas->translateX, canvas->translateY);
 
     // render
-    vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
+    vt_str_appendf(canvas->surface, "%.2f, %.2f ", point.x, point.y);
 }
 
 void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_appearance_t appearance, const char *const fill_rule) {
@@ -171,7 +171,7 @@ void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_appeara
     // render
     vt_str_appendf(
         canvas->surface,
-        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%d;fill-opacity:%.2f;stroke-opacity:%.2f;fill-rule:%s;'/>\n",
+        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;fill-opacity:%.2f;stroke-opacity:%.2f;fill-rule:%s;'/>\n",
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity, fill_rule
@@ -198,7 +198,7 @@ void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, snl_point_t po
     point = SNL_POINT_ADJUST(point, canvas->translateX, canvas->translateY);
 
     // render
-    vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
+    vt_str_appendf(canvas->surface, "%.2f, %.2f ", point.x, point.y);
 }
 
 void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_appearance_t appearance) {
@@ -210,7 +210,7 @@ void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_appear
     // render
     vt_str_appendf(
         canvas->surface,
-        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%d;fill-opacity:%.2f;stroke-opacity:%.2f;'/>\n",
+        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;fill-opacity:%.2f;stroke-opacity:%.2f;'/>\n",
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity
@@ -233,13 +233,13 @@ void snl_canvas_render_curve(
 
     // calculte curve_height and curvature
     const snl_point_t delta_end = SNL_POINT(end.x - start.x, end.y - start.y);
-    const int32_t curve_height = (delta_end.x + delta_end.y) / 2; 
-    const int32_t curvature = (delta_end.x + delta_end.y) / 2; 
+    const float curve_height = (delta_end.x + delta_end.y) / 2; 
+    const float curvature = (delta_end.x + delta_end.y) / 2; 
 
     // rendering
     vt_str_appendf(
         canvas->surface,
-        "<path d='M %d %d q %d %d %d %d' stroke-width='%d' "
+        "<path d='M %.2f %.2f q %.2f %.2f %.2f %.2f' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         start.x, start.y, curve_height, curvature, delta_end.x, delta_end.y, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
@@ -251,7 +251,7 @@ void snl_canvas_render_curve(
 void snl_canvas_render_curve2(
     snl_canvas_t *const canvas, 
     snl_point_t start, snl_point_t end, 
-    const int32_t curve_height, const int32_t curvature, 
+    const float curve_height, const float curvature, 
     const snl_appearance_t appearance
 ) {
     // check for invalid input
@@ -269,7 +269,7 @@ void snl_canvas_render_curve2(
     // rendering
     vt_str_appendf(
         canvas->surface,
-        "<path d='M %d %d q %d %d %d %d' stroke-width='%d' "
+        "<path d='M %.2f %.2f q %.2f %.2f %.2f %.2f' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f'/>\n",
         start.x, start.y, curve_height, curvature, delta_end.x, delta_end.y, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
@@ -299,7 +299,7 @@ void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, snl_point_t poin
     point = SNL_POINT_ADJUST(point, canvas->translateX, canvas->translateY);
 
     // render
-    vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
+    vt_str_appendf(canvas->surface, "%.2f, %.2f ", point.x, point.y);
 
     // update previous point
     gi_path_prev_point = point;
@@ -315,7 +315,7 @@ void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl_point_
     gi_path_prev_point = SNL_POINT(gi_path_prev_point.x + amount.x, gi_path_prev_point.y + amount.y);
 
     // render
-    vt_str_appendf(canvas->surface, "%d, %d ", gi_path_prev_point.x, gi_path_prev_point.y);
+    vt_str_appendf(canvas->surface, "%.2f, %.2f ", gi_path_prev_point.x, gi_path_prev_point.y);
 }
 
 void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance_t appearance) {
@@ -327,14 +327,14 @@ void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance
     // render
     vt_str_appendf(
         canvas->surface,
-        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%d;fill-opacity:%.2f;stroke-opacity:%.2f;'/>\n",
+        "' style='fill:rgba(%u, %u, %u, %u);stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;fill-opacity:%.2f;stroke-opacity:%.2f;'/>\n",
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity
     );
 }
 
-void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size) {
+void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
@@ -347,17 +347,17 @@ void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const c
     const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_BLACK);
     vt_str_appendf(
         canvas->surface,
-        "<text x='%d' y='%d' font-family='%s' font-size='%d' font-weight='%s' font-style='%s' text-decoration = '%s' stroke-width = '%d' "
+        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%d)'>%s</text>\n",
+        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)'>%s</text>\n",
         pos.x, pos.y, SNL_FONT_ARIAL, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
-        appearance.fill_opacity, appearance.stroke_opacity, 0, text
+        appearance.fill_opacity, appearance.stroke_opacity, 0.0, text
     );
 }
 
-void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color) {
+void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
@@ -370,13 +370,13 @@ void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const 
     const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, color);
     vt_str_appendf(
         canvas->surface,
-        "<text x='%d' y='%d' font-family='%s' font-size='%d' font-weight='%s' font-style='%s' text-decoration = '%s' stroke-width = '%d' "
+        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%d)'>%s</text>\n",
+        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)'>%s</text>\n",
         pos.x, pos.y, font_family, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
-        appearance.fill_opacity, appearance.stroke_opacity, 0, text
+        appearance.fill_opacity, appearance.stroke_opacity, 0.0, text
     );
 }
 
@@ -392,9 +392,9 @@ extern void snl_canvas_render_text3(snl_canvas_t *const canvas, snl_point_t pos,
     // rendering
     vt_str_appendf(
         canvas->surface,
-        "<text x='%d' y='%d' font-family='%s' font-size='%d' font-weight='%s' font-style='%s' text-decoration = '%s' stroke-width = '%d' "
+        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' fill='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%d)'>%s</text>\n",
+        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)'>%s</text>\n",
         pos.x, pos.y, td.font_family, td.font_size, td.font_weight, td.font_style, td.text_decoration, appearance.stroke_width,
         appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
         appearance.fill_color.r, appearance.fill_color.g, appearance.fill_color.b, appearance.fill_color.a,
@@ -419,7 +419,7 @@ void snl_canvas_undo(snl_canvas_t *const canvas) {
     }
 }
 
-void snl_canvas_translate(snl_canvas_t *const canvas, const int32_t x, const int32_t y) {
+void snl_canvas_translate(snl_canvas_t *const canvas, const float x, const float y) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));

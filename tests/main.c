@@ -14,7 +14,7 @@ int main(void) {
 
     // create canvas
     snl_canvas_t canvas = snl_canvas_create(512, 512);
-    snl_canvas_preallocate(&canvas, 3072);
+    snl_canvas_preallocate(&canvas, 4096);
 
     // render
     snl_canvas_fill(&canvas, SNL_COLOR_SILVER);
