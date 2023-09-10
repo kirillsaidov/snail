@@ -150,6 +150,9 @@ typedef struct SnailPoint {
 // set point easily
 #define SNL_POINT(x, y) ((snl_point_t) {x, y})
 
+// adjust point by value
+#define SNL_POINT_ADJUST(point, adjust_x, adjust_y) ((snl_point_t) {point.x + adjust_x, point.y + adjust_y})
+
 // svg draw canvas
 typedef struct SnailCanvas {
     const int32_t width, height;
@@ -192,7 +195,7 @@ extern void snl_canvas_preallocate(snl_canvas_t *const canvas, uint32_t bytes);
  */
 extern void snl_canvas_render_line(
     snl_canvas_t *const canvas, 
-    const snl_point_t start, const snl_point_t end, 
+    snl_point_t start, snl_point_t end, 
     const snl_appearance_t appearance
 );
 
@@ -207,7 +210,7 @@ extern void snl_canvas_render_line(
  */
 extern void snl_canvas_render_circle(
     snl_canvas_t *const canvas, 
-    const struct SnailPoint origin, const uint32_t radius, 
+    struct SnailPoint origin, const uint32_t radius, 
     const struct SnailAppearance appearance
 );
 
@@ -222,7 +225,7 @@ extern void snl_canvas_render_circle(
  */
 extern void snl_canvas_render_ellipse(
     snl_canvas_t *const canvas, 
-    const struct SnailPoint origin, const struct SnailPoint radius,
+    struct SnailPoint origin, const struct SnailPoint radius,
     const struct SnailAppearance appearance
 );
 
@@ -238,7 +241,7 @@ extern void snl_canvas_render_ellipse(
  */
 extern void snl_canvas_render_rectangle(
     snl_canvas_t *const canvas, 
-    const snl_point_t pos, const snl_point_t size, const int32_t radius, 
+    snl_point_t pos, const snl_point_t size, const int32_t radius, 
     const snl_appearance_t appearance
 );
 
@@ -261,7 +264,7 @@ extern void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas);
  * 
  * @note called between <snl_canvas_render_polygon_begin()> and <snl_canvas_render_polygon_end()>
  */
-extern void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const snl_point_t point);
+extern void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, snl_point_t point);
 
 /**
  * @brief Finish rendering a polygon to canvas surface
@@ -294,7 +297,7 @@ extern void snl_canvas_render_polyline_begin(snl_canvas_t *const canvas);
  * 
  * @note called between <snl_canvas_render_polyline_begin()> and <snl_canvas_render_polyline_end()>
  */
-extern void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, const snl_point_t point);
+extern void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, snl_point_t point);
 
 /**
  * @brief Finish rendering a polyline to canvas surface
@@ -318,7 +321,7 @@ extern void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl
  */
 extern void snl_canvas_render_curve(
     snl_canvas_t *const canvas, 
-    const snl_point_t start, const snl_point_t end, 
+    snl_point_t start, snl_point_t end, 
     const snl_appearance_t appearance
 );
 
@@ -335,7 +338,7 @@ extern void snl_canvas_render_curve(
  */
 extern void snl_canvas_render_curve2(
     snl_canvas_t *const canvas, 
-    const snl_point_t start, const snl_point_t end, 
+    snl_point_t start, snl_point_t end, 
     const int32_t curve_height, const int32_t curvature, 
     const snl_appearance_t appearance
 );
@@ -359,7 +362,7 @@ extern void snl_canvas_render_path_begin(snl_canvas_t *const canvas);
  * 
  * @note called between <snl_canvas_render_path_begin()> and <snl_canvas_render_path_end()> calls
  */
-extern void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, const snl_point_t point);
+extern void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, snl_point_t point);
 
 /**
  * @brief Render path to canvas surface
@@ -393,7 +396,7 @@ extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_app
  * 
  * @note see also <snl_canvas_render_text2()> and <snl_canvas_render_text3()>
  */
-extern void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size);
+extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size);
 
 /**
  * @brief Render text to canvas surface with custom font and color
@@ -408,7 +411,7 @@ extern void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t
  * 
  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text3()>
  */
-extern void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color);
+extern void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color);
 
 /**
  * @brief Render text to canvas surface with custom parameters
@@ -422,7 +425,7 @@ extern void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_
  * 
  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text2()>
  */
-extern void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td);
+extern void snl_canvas_render_text3(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td);
 
 /**
  * @brief Undo the last rendering operation

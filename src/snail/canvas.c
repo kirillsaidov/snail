@@ -40,13 +40,17 @@ void snl_canvas_preallocate(snl_canvas_t *const canvas, uint32_t bytes) {
 
 void snl_canvas_render_line(
     snl_canvas_t *const canvas, 
-    const snl_point_t start, const snl_point_t end, 
+    snl_point_t start, snl_point_t end, 
     const snl_appearance_t appearance
 ) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    start = SNL_POINT_ADJUST(start, canvas->translateX, canvas->translateY);
+    end = SNL_POINT_ADJUST(end, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(
@@ -60,13 +64,16 @@ void snl_canvas_render_line(
 
 void snl_canvas_render_circle(
     snl_canvas_t *const canvas, 
-    const struct SnailPoint origin, const uint32_t radius, 
+    struct SnailPoint origin, const uint32_t radius, 
     const struct SnailAppearance appearance
 ) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    origin = SNL_POINT_ADJUST(origin, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(
@@ -83,13 +90,16 @@ void snl_canvas_render_circle(
 
 void snl_canvas_render_ellipse(
     snl_canvas_t *const canvas, 
-    const struct SnailPoint origin, const struct SnailPoint radius,
+    struct SnailPoint origin, const struct SnailPoint radius,
     const struct SnailAppearance appearance
 ) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    origin = SNL_POINT_ADJUST(origin, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(
@@ -106,13 +116,16 @@ void snl_canvas_render_ellipse(
 
 void snl_canvas_render_rectangle(
     snl_canvas_t *const canvas, 
-    const snl_point_t pos, const snl_point_t size, const int32_t radius, 
+    snl_point_t pos, const snl_point_t size, const int32_t radius, 
     const snl_appearance_t appearance
 ) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(
@@ -136,11 +149,14 @@ void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas) {
     vt_str_appendf(canvas->surface, "<polygon points='");
 }
 
-void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, const snl_point_t point) {
+void snl_canvas_render_polygon_point(snl_canvas_t *const canvas, snl_point_t point) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polygon_begin()' before using 'snl_render_polygon_point()'.\n");
+
+    // adjust for translation
+    point = SNL_POINT_ADJUST(point, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
@@ -172,11 +188,14 @@ void snl_canvas_render_polyline_begin(snl_canvas_t *const canvas) {
     vt_str_appendf(canvas->surface, "<polyline points='");
 }
 
-void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, const snl_point_t point) {
+void snl_canvas_render_polyline_point(snl_canvas_t *const canvas, snl_point_t point) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polyline_begin()' before using 'snl_render_polyline_point()'.\n");
+
+    // adjust for translation
+    point = SNL_POINT_ADJUST(point, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
@@ -200,13 +219,17 @@ void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_appear
 
 void snl_canvas_render_curve(
     snl_canvas_t *const canvas, 
-    const snl_point_t start, const snl_point_t end, 
+    snl_point_t start, snl_point_t end, 
     const snl_appearance_t appearance
 ) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    start = SNL_POINT_ADJUST(start, canvas->translateX, canvas->translateY);
+    end = SNL_POINT_ADJUST(end, canvas->translateX, canvas->translateY);
 
     // calculte curve_height and curvature
     const snl_point_t delta_end = SNL_POINT(end.x - start.x, end.y - start.y);
@@ -227,7 +250,7 @@ void snl_canvas_render_curve(
 
 void snl_canvas_render_curve2(
     snl_canvas_t *const canvas, 
-    const snl_point_t start, const snl_point_t end, 
+    snl_point_t start, snl_point_t end, 
     const int32_t curve_height, const int32_t curvature, 
     const snl_appearance_t appearance
 ) {
@@ -235,6 +258,10 @@ void snl_canvas_render_curve2(
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    start = SNL_POINT_ADJUST(start, canvas->translateX, canvas->translateY);
+    end = SNL_POINT_ADJUST(end, canvas->translateX, canvas->translateY);
 
     // calculte curve_height and curvature
     const snl_point_t delta_end = SNL_POINT(end.x - start.x, end.y - start.y);
@@ -262,11 +289,14 @@ void snl_canvas_render_path_begin(snl_canvas_t *const canvas) {
 }
 
 static snl_point_t gi_path_prev_point = SNL_POINT(0, 0);
-void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, const snl_point_t point) {
+void snl_canvas_render_path_line_to(snl_canvas_t *const canvas, snl_point_t point) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_path_begin()' before using 'snl_render_path_line_to()'.\n");
+
+    // adjust for translation
+    point = SNL_POINT_ADJUST(point, canvas->translateX, canvas->translateY);
 
     // render
     vt_str_appendf(canvas->surface, "%d, %d ", point.x, point.y);
@@ -304,11 +334,14 @@ void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance
     );
 }
 
-void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size) {
+void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
     // rendering
     const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_BLACK);
@@ -324,11 +357,14 @@ void snl_canvas_render_text(snl_canvas_t *const canvas, const snl_point_t pos, c
     );
 }
 
-void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color) {
+void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const uint32_t font_size, const char *const font_family, const struct SnailColor color) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
     // rendering
     const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, color);
@@ -344,11 +380,14 @@ void snl_canvas_render_text2(snl_canvas_t *const canvas, const snl_point_t pos, 
     );
 }
 
-extern void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td) {
+extern void snl_canvas_render_text3(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // adjust for translation
+    pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
     // rendering
     vt_str_appendf(
@@ -363,9 +402,41 @@ extern void snl_canvas_render_text3(snl_canvas_t *const canvas, const snl_point_
     );
 }
 
-void snl_canvas_undo(snl_canvas_t *const canvas);
-void snl_canvas_translate(snl_canvas_t *const canvas, const int32_t x, const int32_t y);
-void snl_canvas_reset_translation(snl_canvas_t *const canvas);
+void snl_canvas_undo(snl_canvas_t *const canvas) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // undo the last operation (remove the last line)
+    size_t surface_len = vt_str_len(canvas->surface) - 2;
+    const char *const surface_ptr = vt_str_z(canvas->surface);
+    while (surface_len-- > 0) {
+        if (surface_ptr[surface_len] == '\n') {
+            vt_str_remove(canvas->surface, surface_len + 1, vt_str_len(canvas->surface) - surface_len - 1);
+            break;
+        }
+    }
+}
+
+void snl_canvas_translate(snl_canvas_t *const canvas, const int32_t x, const int32_t y) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    canvas->translateX = x;
+    canvas->translateY = y;
+}
+
+void snl_canvas_reset_translation(snl_canvas_t *const canvas) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    canvas->translateX = canvas->translateY = 0;
+}
 
 void snl_canvas_fill(snl_canvas_t *const canvas, struct SnailColor color) {
     // check for invalid input

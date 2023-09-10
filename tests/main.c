@@ -64,6 +64,23 @@ int main(void) {
         SNL_TEXT_DECORATION(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
     );
 
+    // undo
+    snl_canvas_render_text(&canvas, SNL_POINT(10, 250), "UNDO THIS!", 18);
+    snl_canvas_undo(&canvas);
+
+    // translate
+    snl_canvas_translate(&canvas, canvas.width / 2, canvas.height / 2);
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(-50, -50), SNL_POINT(100, 100), 0, SNL_APPEARANCE_DEFAULT);
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(-40, -40), SNL_POINT(80, 80), 0, SNL_APPEARANCE_DEFAULT);
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(-30, -30), SNL_POINT(60, 60), 0, SNL_APPEARANCE_DEFAULT);
+    snl_canvas_translate(&canvas, canvas.width / 1.5, canvas.height / 1.5);
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(-30, -30), SNL_POINT(60, 60), 0, SNL_APPEARANCE_DEFAULT);
+
+    // reset translation
+    snl_canvas_reset_translation(&canvas);
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(-30, -30), SNL_POINT(60, 60), 0, SNL_APPEARANCE_DEFAULT);
+
+
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));
     printf("- Canvas capacity: %zu\n", vt_str_capacity(canvas.surface));
