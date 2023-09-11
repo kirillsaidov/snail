@@ -6,7 +6,7 @@ snl_canvas_t snl_canvas_create(const float width, const float height) {
     snl_canvas_t canvas = (snl_canvas_t) {
         .width = width, 
         .height = height,
-        .surface = vt_str_create_capacity(VT_ARRAY_DEFAULT_INIT_ELEMENTS, NULL)
+        .surface = vt_str_create_capacity(512, NULL)
     };
 
     // initialize the canvas
@@ -15,6 +15,9 @@ snl_canvas_t snl_canvas_create(const float width, const float height) {
         "<svg width='%.2f' height='%.2f' viewBox='0 0 %.2f %.2f' xmlns='%s' version='%s' xmlns:xlink='%s'>\n",
         width, height, width, height, "http://www.w3.org/2000/svg", "1.1", "http://www.w3.org/1999/xlink"
     );
+
+    // filters and gradients section
+    vt_str_appendf(canvas.surface, "<defs>\n</defs>\n");
 
     return canvas;
 }
@@ -37,6 +40,83 @@ void snl_canvas_preallocate(snl_canvas_t *const canvas, float bytes) {
     // reserve
     vt_str_reserve(canvas->surface, bytes);
 }
+
+void snl_canvas_add_filter_blur(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_DEBUG_ASSERT(id != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+
+    // find </defs>
+    const char *defs_close = vt_str_find(canvas->surface, "</defs>");
+    const ptrdiff_t insert_pos = defs_close - vt_str_z(canvas->surface);
+    
+    // insert filter
+    vt_str_insert()
+}
+
+void snl_canvas_add_filter_blur_hard_edge(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical);
+
+void snl_canvas_add_filter_shadow(
+    snl_canvas_t *const canvas, 
+    const char *const id, 
+    const int32_t offsetX, 
+    const int32_t offsetY, 
+    const float blurness, 
+    const bool color_blend
+);
+
+void snl_canvas_add_gradient_linear(
+    snl_canvas_t *const canvas, 
+    const char *const id, 
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const float opacityA,
+    const float opacityB,
+    const float angle
+);
+
+void snl_canvas_add_gradient_linear_tricolor(
+    snl_canvas_t *const canvas, 
+    const char *const id, 
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const struct SnailColor colorC,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const int32_t offsetC,
+    const float opacityA,
+    const float opacityB,
+    const float opacityC,
+    const float angle
+);
+
+void snl_canvas_add_gradient_radial(
+    snl_canvas_t *const canvas, 
+    const char *const id,
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const float opacityA,
+    const float opacityB
+);
+
+void snl_canvas_add_gradient_radial_tricolor(
+    snl_canvas_t *const canvas, 
+    const char *const id,
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const struct SnailColor colorC,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const int32_t offsetC,
+    const float opacityA,
+    const float opacityB,
+    const float opacityC
+);
 
 void snl_canvas_render_line(
     snl_canvas_t *const canvas, 

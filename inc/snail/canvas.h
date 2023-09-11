@@ -186,6 +186,160 @@ extern void snl_canvas_destroy(snl_canvas_t *canvas);
 extern void snl_canvas_preallocate(snl_canvas_t *const canvas, float bytes);
 
 /**
+ * @brief Creates a blur filter 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param blurnessHorizontal amount
+ * @param blurnessVertical amount
+ * @return None 
+ */
+extern void snl_canvas_add_filter_blur(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical);
+
+/**
+ * @brief Creates a blur filter with hard edge 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param blurnessHorizontal amount
+ * @param blurnessVertical amount
+ * @return None 
+ */
+extern void snl_canvas_add_filter_blur_hard_edge(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical);
+
+/**
+ * @brief Creates a blur filter 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param offsetX amount
+ * @param offsetY amount
+ * @param blurness amount
+ * @param color_blend blend colors or not
+ * @return None 
+ */
+extern void snl_canvas_add_filter_shadow(
+    snl_canvas_t *const canvas, 
+    const char *const id, 
+    const int32_t offsetX, 
+    const int32_t offsetY, 
+    const float blurness, 
+    const bool color_blend
+);
+
+/**
+ * @brief Creates a blur filter 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param colorA color gradient
+ * @param colorB color gradient
+ * @param offsetA colorA offset
+ * @param offsetB colorB offset
+ * @param opacityA colorA opacity
+ * @param opacityB colorB opacity
+ * @param angle amount
+ * @return None 
+ */
+extern void snl_canvas_add_gradient_linear(
+    snl_canvas_t *const canvas, 
+    const char *const id, 
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const float opacityA,
+    const float opacityB,
+    const float angle
+);
+
+/**
+ * @brief Creates a blur filter 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param colorA color gradient
+ * @param colorB color gradient
+ * @param colorC color gradient
+ * @param offsetA colorA offset
+ * @param offsetB colorB offset
+ * @param offsetC colorC offset
+ * @param opacityA colorA opacity
+ * @param opacityB colorB opacity
+ * @param opacityC colorC opacity
+ * @param angle amount
+ * @return None 
+ */
+extern void snl_canvas_add_gradient_linear_tricolor(
+    snl_canvas_t *const canvas, 
+    const char *const id, 
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const struct SnailColor colorC,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const int32_t offsetC,
+    const float opacityA,
+    const float opacityB,
+    const float opacityC,
+    const float angle
+);
+
+/**
+ * @brief Creates a blur filter 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param colorA color gradient
+ * @param colorB color gradient
+ * @param offsetA colorA offset
+ * @param offsetB colorB offset
+ * @param opacityA colorA opacity
+ * @param opacityB colorB opacity
+ * @return None 
+ */
+extern void snl_canvas_add_gradient_radial(
+    snl_canvas_t *const canvas, 
+    const char *const id,
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const float opacityA,
+    const float opacityB
+);
+
+/**
+ * @brief Creates a blur filter 
+ * 
+ * @param canvas canvas instance
+ * @param id filter name
+ * @param colorA color gradient
+ * @param colorB color gradient
+ * @param colorC color gradient
+ * @param offsetA colorA offset
+ * @param offsetB colorB offset
+ * @param offsetC colorC offset
+ * @param opacityA colorA opacity
+ * @param opacityB colorB opacity
+ * @param opacityC colorC opacity
+ * @return None 
+ */
+extern void snl_canvas_add_gradient_radial_tricolor(
+    snl_canvas_t *const canvas, 
+    const char *const id,
+    const struct SnailColor colorA, 
+    const struct SnailColor colorB,
+    const struct SnailColor colorC,
+    const int32_t offsetA,
+    const int32_t offsetB,
+    const int32_t offsetC,
+    const float opacityA,
+    const float opacityB,
+    const float opacityC
+);
+
+/**
  * @brief Render a single line to canvas surface
  * 
  * @param canvas canvas instance
