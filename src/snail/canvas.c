@@ -1,6 +1,9 @@
 #include "snail/canvas.h"
 
+#include <math.h>
+
 static bool snl_can_continue();
+static void snl_rotate(const float angle, float *x1, float *y1, float *x2, float *y2);
 
 snl_canvas_t snl_canvas_create(const float width, const float height) {
     snl_canvas_t canvas = (snl_canvas_t) {
@@ -15,9 +18,6 @@ snl_canvas_t snl_canvas_create(const float width, const float height) {
         "<svg width='%.2f' height='%.2f' viewBox='0 0 %.2f %.2f' xmlns='%s' version='%s' xmlns:xlink='%s'>\n",
         width, height, width, height, "http://www.w3.org/2000/svg", "1.1", "http://www.w3.org/1999/xlink"
     );
-
-    // filters and gradients section
-    vt_str_appendf(canvas.surface, "<defs>\n</defs>\n");
 
     return canvas;
 }
@@ -47,24 +47,55 @@ void snl_canvas_add_filter_blur(snl_canvas_t *const canvas, const char *const id
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_DEBUG_ASSERT(id != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
 
-    // find </defs>
-    const char *defs_close = vt_str_find(canvas->surface, "</defs>");
-    const ptrdiff_t insert_pos = defs_close - vt_str_z(canvas->surface);
-    
-    // insert filter
-    vt_str_insert()
+    // add filter
+    vt_str_appendf(
+        canvas->surface,
+        "<defs><filter id='%s'><feGaussianBlur stdDeviation='%d %d'/></filter></defs>\n",
+        id, blurnessHorizontal, blurnessVertical
+    );
 }
 
-void snl_canvas_add_filter_blur_hard_edge(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical);
+void snl_canvas_add_filter_blur_hard_edge(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_DEBUG_ASSERT(id != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+
+    // add filter
+    vt_str_appendf(
+        canvas->surface,
+        "<defs><filter id='%s'>"
+        "<feGaussianBlur stdDeviation='%d %d'/>"
+        "<feComponentTransfer><feFuncA type='table' tableValues='1 1'/></feComponentTransfer>"
+        "</filter></defs>\n",
+        id, blurnessHorizontal, blurnessVertical
+    );
+}
 
 void snl_canvas_add_filter_shadow(
     snl_canvas_t *const canvas, 
     const char *const id, 
     const int32_t offsetX, 
     const int32_t offsetY, 
-    const float blurness, 
+    const int32_t blurness, 
     const bool color_blend
-);
+) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_DEBUG_ASSERT(id != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+
+    // add filter
+    vt_str_appendf(
+        canvas->surface,
+        "<defs><filter id='%s' x='0' y='0' width='200%%' height='200%%'>"
+        "<feOffset result='offOut' in='%s' dx='%d' dy='%d'/>"
+        "<feGaussianBlur result='blurOut' in='offOut' stdDeviation='%d'/>"
+        "<feBlend in='SourceGraphic' in2='blurOut' mode='normal'/>"
+        "</filter></defs>\n",
+        id, color_blend ? "SourceGraphic" : "SourceAlpha", offsetX, offsetY, blurness
+    );
+}
 
 void snl_canvas_add_gradient_linear(
     snl_canvas_t *const canvas, 
@@ -76,7 +107,28 @@ void snl_canvas_add_gradient_linear(
     const float opacityA,
     const float opacityB,
     const float angle
-);
+) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_DEBUG_ASSERT(id != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+
+    // rotate 
+    float x1 = 0, y1 = 0, x2 = 100, y2 = 0;
+    snl_rotate(angle, &x1, &y1, &x2, &y2);
+
+    // add filter
+    vt_str_appendf(
+        canvas->surface,
+        "<defs><linearGradient id='%s' x1='%f%%' y1='%f%%' x2='%f%%' y2='%f%%'>"
+        "<stop offset='%d%%' style='stop-color:rgba(%u, %u, %u, %u);stop-opacity:%f'/>"
+        "<stop offset='%d%%' style='stop-color:rgba(%u, %u, %u, %u);stop-opacity:%f'/>"
+        "</linearGradient></defs>\n",
+        id, x1, y1, x2, y2,
+        offsetA, colorA.r, colorA.g, colorA.b, colorA.a, opacityA,
+        offsetB, colorB.r, colorB.g, colorB.b, colorB.a, opacityB
+    );
+}
 
 void snl_canvas_add_gradient_linear_tricolor(
     snl_canvas_t *const canvas, 
@@ -91,7 +143,30 @@ void snl_canvas_add_gradient_linear_tricolor(
     const float opacityB,
     const float opacityC,
     const float angle
-);
+) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_DEBUG_ASSERT(id != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+
+    // rotate 
+    float x1 = 0, y1 = 0, x2 = 100, y2 = 0;
+    snl_rotate(angle, &x1, &y1, &x2, &y2);
+
+    // add filter
+    vt_str_appendf(
+        canvas->surface,
+        "<defs><linearGradient id='%s' x1='%f%%' y1='%f%%' x2='%f%%' y2='%f%%'>"
+        "<stop offset='%d%%' style='stop-color:rgba(%u, %u, %u, %u);stop-opacity:%f'/>"
+        "<stop offset='%d%%' style='stop-color:rgba(%u, %u, %u, %u);stop-opacity:%f'/>"
+        "<stop offset='%d%%' style='stop-color:rgba(%u, %u, %u, %u);stop-opacity:%f'/>"
+        "</linearGradient></defs>\n",
+        id, x1, y1, x2, y2,
+        offsetA, colorA.r, colorA.g, colorA.b, colorA.a, opacityA,
+        offsetB, colorB.r, colorB.g, colorB.b, colorB.a, opacityB,
+        offsetC, colorC.r, colorC.g, colorC.b, colorC.a, opacityC
+    );
+}
 
 void snl_canvas_add_gradient_radial(
     snl_canvas_t *const canvas, 
@@ -554,4 +629,40 @@ static bool snl_can_continue(const snl_canvas_t *const canvas) {
     const size_t len = vt_str_len(canvas->surface);
 
     return surface[len - 1] == '\n';
+}
+
+/**
+ * @brief Rotates a line around its center by angle
+ * @param x1 line.startX
+ * @param y1 line.startY
+ * @param x2 line.endX
+ * @param y2 line.endY
+ * @return None 
+ */
+static void snl_rotate(const float angle, float *x1, float *y1, float *x2, float *y2) {
+    const float rads = angle * M_PI / 180.0;
+    
+    // find center
+    const float cx = abs(*x2 - *x1) / 2;
+    const float cy = abs(*y2 - *y1) / 2;
+
+    // translate coordinates (adjust by center)
+    const float
+        tx1 = *x1 - cx,
+        ty1 = *y1 - cy,
+        tx2 = *x2 - cx,
+        ty2 = *y2 - cy;
+    
+    // rotate by angle
+    const float
+        nx1 = tx1 * cosf(rads) + ty1 * sinf(rads) + cx,
+        ny1 = -tx1 * sinf(rads) + ty1 * cosf(rads) + cy,
+        nx2 = tx2 * cosf(rads) + ty2 * sinf(rads) + cx,
+        ny2 = -tx2 * sinf(rads) + ty2 * cosf(rads) + cy;
+
+    // update values
+    *x1 = nx1;
+    *y1 = ny1;
+    *x2 = nx2;
+    *y2 = ny2;
 }

@@ -16,6 +16,16 @@ int main(void) {
     snl_canvas_t canvas = snl_canvas_create(512, 512);
     snl_canvas_preallocate(&canvas, 4096);
 
+    // add filters and gradients
+    snl_canvas_add_filter_blur(&canvas, "b0", 15, 15);
+    snl_canvas_add_filter_blur_hard_edge(&canvas, "b1", 15, 15);
+    snl_canvas_add_filter_shadow(&canvas, "s0", 10, 10, 10, true);
+    snl_canvas_add_gradient_linear(&canvas, "lg0", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, 0, 100, 1, 1, 0);
+    snl_canvas_add_gradient_linear(&canvas, "lg1", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, 0, 100, 1, 1, 45);
+    snl_canvas_add_gradient_linear_tricolor(&canvas, "lg2", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1, 0);
+    snl_canvas_add_gradient_linear_tricolor(&canvas, "lg3", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1, 45);
+    
+
     // render
     snl_canvas_fill(&canvas, SNL_COLOR_SILVER);
     snl_canvas_render_line(&canvas, SNL_POINT(0, 0), SNL_POINT(50, 50), SNL_APPEARANCE_DEFAULT);

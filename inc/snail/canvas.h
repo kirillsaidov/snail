@@ -208,7 +208,7 @@ extern void snl_canvas_add_filter_blur(snl_canvas_t *const canvas, const char *c
 extern void snl_canvas_add_filter_blur_hard_edge(snl_canvas_t *const canvas, const char *const id, const int32_t blurnessHorizontal, const int32_t blurnessVertical);
 
 /**
- * @brief Creates a blur filter 
+ * @brief Creates a shadow filter 
  * 
  * @param canvas canvas instance
  * @param id filter name
@@ -223,19 +223,19 @@ extern void snl_canvas_add_filter_shadow(
     const char *const id, 
     const int32_t offsetX, 
     const int32_t offsetY, 
-    const float blurness, 
+    const int32_t blurness, 
     const bool color_blend
 );
 
 /**
- * @brief Creates a blur filter 
+ * @brief Creates a linear gradient 
  * 
  * @param canvas canvas instance
  * @param id filter name
  * @param colorA color gradient
  * @param colorB color gradient
- * @param offsetA colorA offset
- * @param offsetB colorB offset
+ * @param offsetA colorA offset ~[0; 100]
+ * @param offsetB colorB offset ~[0; 100]
  * @param opacityA colorA opacity
  * @param opacityB colorB opacity
  * @param angle amount
@@ -254,16 +254,16 @@ extern void snl_canvas_add_gradient_linear(
 );
 
 /**
- * @brief Creates a blur filter 
+ * @brief Creates a linear gradient with 3 color gradients 
  * 
  * @param canvas canvas instance
  * @param id filter name
  * @param colorA color gradient
  * @param colorB color gradient
  * @param colorC color gradient
- * @param offsetA colorA offset
- * @param offsetB colorB offset
- * @param offsetC colorC offset
+ * @param offsetA colorA offset ~[0; 100]
+ * @param offsetB colorB offset ~[0; 100]
+ * @param offsetC colorC offset ~[0; 100]
  * @param opacityA colorA opacity
  * @param opacityB colorB opacity
  * @param opacityC colorC opacity
@@ -286,7 +286,7 @@ extern void snl_canvas_add_gradient_linear_tricolor(
 );
 
 /**
- * @brief Creates a blur filter 
+ * @brief Creates a radial gradient
  * 
  * @param canvas canvas instance
  * @param id filter name
@@ -310,7 +310,7 @@ extern void snl_canvas_add_gradient_radial(
 );
 
 /**
- * @brief Creates a blur filter 
+ * @brief Creates a radial gradient with 3 color gradients 
  * 
  * @param canvas canvas instance
  * @param id filter name
