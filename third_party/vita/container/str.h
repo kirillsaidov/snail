@@ -27,6 +27,8 @@
     - vt_str_insert
     - vt_str_insertf
     - vt_str_insert_n
+    - vt_str_insert_before
+    - vt_str_insert_after
     - vt_str_remove
     - vt_str_remove_first
     - vt_str_remove_all
@@ -47,6 +49,7 @@
     - vt_str_is_numeric
     - vt_str_capitalize
     - vt_str_index_of
+    - vt_str_index_find
     - vt_str_slide_front
     - vt_str_slide_back
     - vt_str_slide_reset           
@@ -248,6 +251,20 @@ extern enum VitaStatus vt_str_insertf(vt_str_t *const s, const size_t at, const 
 */
 extern void vt_str_insert_n(vt_str_t *const s, const char *z, const size_t at, const size_t n);
 
+/** Inserts a string before the substring if that substring is found
+    @param s vt_str_t instance
+    @param sub substring to find
+    @param z string to insert
+*/
+extern void vt_str_insert_before(vt_str_t *const s, const char *const sub, const char *const z);
+
+/** Inserts a string after the substring if that substring is found
+    @param s vt_str_t instance
+    @param sub substring to find
+    @param z string to insert
+*/
+extern void vt_str_insert_after(vt_str_t *const s, const char *const sub, const char *const z);
+
 /** Removes n chars from vt_str_t, starting from the specified index
     @param s vt_str_t instance
     @param from start from index
@@ -302,20 +319,20 @@ extern void vt_str_strip_punct(vt_str_t *const s);
 extern void vt_str_strip_c(vt_str_t *const s, const char *const c);
 
 /** Find a substring
-    @param s vt_str_t instance
-    @param z raw C string
+    @param z haystack
+    @param sub substring needle
 
     @returns pointer to the begining of a substring in a string, or `NULL` upon failure
 */
 extern const char *vt_str_find(const char *const z, const char *sub);
 
 /** Checks if vt_str_t contains a substring
-    @param s vt_str_t instance
-    @param z raw C string
+    @param z haystack
+    @param sub substring needle
 
-    @returns number of substring instances in `vt_str_t`
+    @returns number of substring instances (needles) in haystack
 */
-extern size_t vt_str_can_find(const vt_str_t *const s, const char *z);
+extern size_t vt_str_can_find(const char *const z, const char *sub);
 
 /** Splits a string given a separator into substrings
     @param p vt_plist_t instance, if `NULL` allocates
@@ -381,6 +398,15 @@ extern vt_str_t *vt_str_pop_get_last(vt_str_t *sr, vt_str_t *const s, const char
 */
 extern bool vt_str_equals(const char *const z1, const char *const z2);
 
+/** Checks if N characters of C strings are the same
+    @param z1 raw C string
+    @param z2 raw C string
+    @param n size to compare
+
+    @returns `true` if z1[0..n] == z2[0..n]
+*/
+extern bool vt_str_equals_n(const char *const z1, const char *const z2, const size_t n);
+
 /** Checks if a raw C string starts with a substring
     @param z raw C string
     @param sub raw C substring
@@ -416,13 +442,21 @@ extern bool vt_str_is_numeric(const char *const z, const size_t max_len);
 */
 extern void vt_str_capitalize(vt_str_t *const s);
 
-/** Returns the first occurance of char in string
+/** Returns the index of a first occurance of character in a string
     @param s vt_str_t
     @param z character 
 
-    @returns position of z in vt_str_t upon success, -1 upon failure
+    @returns position of `z` in `vt_str_t` upon success, -1 upon failure
 */
 extern int64_t vt_str_index_of(const vt_str_t *const s, const char z);
+
+/** Returns the starting index position of a first occurance of a substring in string
+    @param s vt_str_t
+    @param sub substring 
+
+    @returns starting index position of `z` in `vt_str_t` upon success, -1 upon failure
+*/
+extern int64_t vt_str_index_find(const vt_str_t *const s, const char *sub);
 
 /** Slides through the container elements one by one starting from the begining
     @param s vt_str_t pointer

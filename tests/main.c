@@ -17,22 +17,24 @@ int main(void) {
     snl_canvas_preallocate(&canvas, 4096);
 
     // add filters and gradients
-    snl_canvas_add_filter_blur(&canvas, "b0", 15, 15);
-    snl_canvas_add_filter_blur_hard_edge(&canvas, "b1", 15, 15);
-    snl_canvas_add_filter_shadow(&canvas, "s0", 10, 10, 10, true);
-    snl_canvas_add_gradient_linear(&canvas, "lg0", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, 0, 100, 1, 1, 0);
-    snl_canvas_add_gradient_linear(&canvas, "lg1", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, 0, 100, 1, 1, 45);
-    snl_canvas_add_gradient_linear_tricolor(&canvas, "lg2", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1, 0);
-    snl_canvas_add_gradient_linear_tricolor(&canvas, "lg3", SNL_COLOR_GOLD, SNL_COLOR_ORANGE, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1, 45);
+    snl_canvas_add_filter_blur(&canvas, "b0", 1, 1);
+    snl_canvas_add_filter_blur_hard_edge(&canvas, "b1", 1, 1);
+    snl_canvas_add_filter_shadow(&canvas, "s0", 10, 10, 5, true);
+    snl_canvas_add_gradient_linear(&canvas, "lg0", SNL_COLOR_BLUE, SNL_COLOR_RED, 0, 100, 1, 1, 0);
+    snl_canvas_add_gradient_linear(&canvas, "lg1", SNL_COLOR_PURPLE, SNL_COLOR_ORANGE, 0, 100, 1, 1, 45);
+    snl_canvas_add_gradient_linear_tricolor(&canvas, "lg2", SNL_COLOR_GOLD, SNL_COLOR_LIME, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1, 0);
+    snl_canvas_add_gradient_linear_tricolor(&canvas, "lg3", SNL_COLOR_GOLD, SNL_COLOR_LIME, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1, 45);
+    snl_canvas_add_gradient_radial(&canvas, "rg0", SNL_COLOR_CORAL, SNL_COLOR_PURPLE, 0, 100, 1, 1);
+    snl_canvas_add_gradient_radial_tricolor(&canvas, "rg1", SNL_COLOR_CORAL, SNL_COLOR_PURPLE, SNL_COLOR_BLUE, 0, 50, 100, 1, 1, 1);
     
 
     // render
     snl_canvas_fill(&canvas, SNL_COLOR_SILVER);
     snl_canvas_render_line(&canvas, SNL_POINT(0, 0), SNL_POINT(50, 50), SNL_APPEARANCE_DEFAULT);
     snl_canvas_render_circle(&canvas, SNL_POINT(80, 30), 25, SNL_APPEARANCE_DEFAULT);
-    snl_canvas_render_circle(&canvas, SNL_POINT(140, 30), 25, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_CORAL));
-    snl_canvas_render_ellipse(&canvas, SNL_POINT(220, 30), SNL_POINT(40, 25), SNL_APPEARANCE(5, 1, SNL_COLOR_PURPLE, 0.5, SNL_COLOR_DARKORANGE));
-    snl_canvas_render_rectangle(&canvas, SNL_POINT(270, 10), SNL_POINT(40, 40), 0, SNL_APPEARANCE(7, 1, SNL_COLOR_GOLD, 1, SNL_COLOR_YELLOW));
+    snl_canvas_render_circle(&canvas, SNL_POINT(140, 30), 25, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_CORAL, NULL, NULL));
+    snl_canvas_render_ellipse(&canvas, SNL_POINT(220, 30), SNL_POINT(40, 25), SNL_APPEARANCE(5, 1, SNL_COLOR_PURPLE, 0.5, SNL_COLOR_DARKORANGE, NULL, NULL));
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(270, 10), SNL_POINT(40, 40), 0, SNL_APPEARANCE(7, 1, SNL_COLOR_GOLD, 1, SNL_COLOR_YELLOW, NULL, NULL));
     
     // polygon
     snl_canvas_render_polygon_begin(&canvas);
@@ -41,7 +43,7 @@ int main(void) {
     snl_canvas_render_polygon_point(&canvas, SNL_POINT(400, 30));
     snl_canvas_render_polygon_point(&canvas, SNL_POINT(390, 50));
     snl_canvas_render_polygon_point(&canvas, SNL_POINT(340, 40));
-    snl_canvas_render_polygon_end(&canvas, SNL_APPEARANCE(3, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_CYAN), SNL_FILL_RULE_DEFAULT);
+    snl_canvas_render_polygon_end(&canvas, SNL_APPEARANCE(3, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_CYAN, NULL, NULL), SNL_FILL_RULE_DEFAULT);
 
     // polyline
     snl_canvas_render_polyline_begin(&canvas);
@@ -50,13 +52,13 @@ int main(void) {
     snl_canvas_render_polyline_point(&canvas, SNL_POINT(490, 30));
     snl_canvas_render_polyline_point(&canvas, SNL_POINT(480, 50));
     snl_canvas_render_polyline_point(&canvas, SNL_POINT(430, 40));
-    snl_canvas_render_polyline_end(&canvas, SNL_APPEARANCE(7, 1, SNL_COLOR_ORANGE, 1, SNL_COLOR_NONE));
+    snl_canvas_render_polyline_end(&canvas, SNL_APPEARANCE(7, 1, SNL_COLOR_ORANGE, 1, SNL_COLOR_NONE, NULL, "lg2"));
 
     // curve
     snl_canvas_render_curve(&canvas, SNL_POINT(10, 80), SNL_POINT(60, 80), SNL_APPEARANCE_DEFAULT);
-    snl_canvas_render_curve(&canvas, SNL_POINT(40, 120), SNL_POINT(40, 160), SNL_APPEARANCE(3, 1, SNL_COLOR_GREEN, 1, SNL_COLOR_BLUE));
-    snl_canvas_render_curve2(&canvas, SNL_POINT(70, 80), SNL_POINT(140, 80), 80, -40, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_NONE));
-    snl_canvas_render_curve2(&canvas, SNL_POINT(120, 120), SNL_POINT(120, 160), 80, 50, SNL_APPEARANCE(5, 1, SNL_COLOR_BROWN, 1, SNL_COLOR_NONE));
+    snl_canvas_render_curve(&canvas, SNL_POINT(40, 120), SNL_POINT(40, 160), SNL_APPEARANCE(3, 1, SNL_COLOR_GREEN, 1, SNL_COLOR_BLUE, NULL, NULL));
+    snl_canvas_render_curve2(&canvas, SNL_POINT(70, 80), SNL_POINT(140, 80), 80, -40, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_NONE, NULL, NULL));
+    snl_canvas_render_curve2(&canvas, SNL_POINT(120, 120), SNL_POINT(120, 160), 80, 50, SNL_APPEARANCE(5, 1, SNL_COLOR_BROWN, 1, SNL_COLOR_NONE, NULL, NULL));
 
     // path
     snl_canvas_render_path_begin(&canvas);
@@ -70,7 +72,7 @@ int main(void) {
     snl_canvas_render_text(&canvas, SNL_POINT(10, 180), "hello, world!", 14);
     snl_canvas_render_text2(&canvas, SNL_POINT(10, 195), "hello, world!", 14, SNL_FONT_LUMINARI, SNL_COLOR_CORAL);
     snl_canvas_render_text3(&canvas, SNL_POINT(10, 215), "hello, world!", 
-        SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME), 
+        SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, NULL, NULL), 
         SNL_TEXT_DECORATION(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
     );
 
@@ -89,6 +91,22 @@ int main(void) {
     // reset translation
     snl_canvas_reset_translation(&canvas);
     snl_canvas_render_rectangle(&canvas, SNL_POINT(-30, -30), SNL_POINT(60, 60), 0, SNL_APPEARANCE_DEFAULT);
+
+    // filter: blur
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 230), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_LIME, "b0", NULL));
+    snl_canvas_render_text3(&canvas, SNL_POINT(10, 310), "hello, world!", 
+        SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "b0", NULL), 
+        SNL_TEXT_DECORATION(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
+    );
+
+    // filter: shadow
+    snl_canvas_render_circle(&canvas, SNL_POINT(130, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "s0", NULL));
+
+    // gradients: linear
+    snl_canvas_render_circle(&canvas, SNL_POINT(250, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "s0", "lg0"));
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 330), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_LIME, NULL, "lg2"));
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 420), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_LIME, NULL, "rg0"));
+    snl_canvas_render_circle(&canvas, SNL_POINT(350, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "s0", "rg1"));
 
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));

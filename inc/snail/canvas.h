@@ -85,11 +85,15 @@ typedef struct SnailAppearance {
     // fill
     float fill_opacity;
     struct SnailColor fill_color;
+
+    // filter, gradient
+    const char *filter;
+    const char *gradient; 
 } snl_appearance_t;
 
-// stroke_width, stroke_opacity, stroke_color, fill_opacity, fill_color
-#define SNL_APPEARANCE(sw, so, sc, fo, fc) ((snl_appearance_t) {sw, so, sc, fo, fc})
-#define SNL_APPEARANCE_DEFAULT SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE)
+// stroke_width, stroke_opacity, stroke_color, fill_opacity, fill_color, filter_id_str, gradient_id_str
+#define SNL_APPEARANCE(sw, so, sc, fo, fc, fis, gis) ((snl_appearance_t) {sw, so, sc, fo, fc, fis, gis})
+#define SNL_APPEARANCE_DEFAULT SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE, NULL, NULL)
 
 // websafe fonts
 #define SNL_FONT_ARIAL           "arial" 
