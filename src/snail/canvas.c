@@ -751,8 +751,8 @@ static void snl_rotate(const float angle, float *x1, float *y1, float *x2, float
     const float rads = angle * M_PI / 180.0;
     
     // find center
-    const float cx = abs(*x2 - *x1) / 2;
-    const float cy = abs(*y2 - *y1) / 2;
+    const float cx = fabs(*x2 - *x1) / 2;
+    const float cy = fabs(*y2 - *y1) / 2;
 
     // translate coordinates (adjust by center)
     const float
