@@ -24,36 +24,45 @@ void draw_logo(void) {
     // Draw background
     snl_canvas_render_rectangle(
         &canvas, 
-        SNL_POINT(0, 0), SNL_POINT(canvas.width, canvas.height),
-        13, SNL_APPEARANCE(1, 1, SNL_COLOR_PALEWHITE, 1, SNL_COLOR_PALEWHITE, NULL, NULL)
+        SNL_POINT(0, 0), 
+        SNL_POINT(canvas.width, canvas.height), 
+        13, 
+        SNL_APPEARANCE(1, 1, SNL_COLOR_PALEWHITE, 1, SNL_COLOR_PALEWHITE, NULL, NULL)
     );
 
     // Draw snail body
     snl_canvas_render_rectangle(
         &canvas, 
-        SNL_POINT(0.03*canvas.width, 2.055*canvas.height/3), SNL_POINT(canvas.width*0.95, 0.9*canvas.height/3.2),
-        81, SNL_APPEARANCE(21, 1, SNL_COLOR_NONE, 0, SNL_COLOR_NONE, NULL, "lg0")
+        SNL_POINT(0.03*canvas.width, 2.055*canvas.height/3), 
+        SNL_POINT(canvas.width*0.95, 0.9*canvas.height/3.2),
+        81, 
+        SNL_APPEARANCE(21, 1, SNL_COLOR_NONE, 0, SNL_COLOR_NONE, NULL, "lg0")
     );
 
     // Draw left eye
     snl_canvas_render_rectangle(
         &canvas, 
-        SNL_POINT(3.5*canvas.width/5, 1.32*canvas.height/3), SNL_POINT(0.07*canvas.width, 0.2*canvas.height),
-        81, SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0")
+        SNL_POINT(3.5*canvas.width/5, 1.32*canvas.height/3), 
+        SNL_POINT(0.07*canvas.width, 0.2*canvas.height),
+        81, 
+        SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0")
     );
 
     // Draw right eye
     snl_canvas_render_rectangle(
         &canvas, 
-        SNL_POINT(4*canvas.width/5, 1.32*canvas.height/3), SNL_POINT(0.07*canvas.width, 0.2*canvas.height),
-        81, SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0")
+        SNL_POINT(4*canvas.width/5, 1.32*canvas.height/3), 
+        SNL_POINT(0.07*canvas.width, 0.2*canvas.height),
+        81, 
+        SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0")
     );
 
     // Draw text 'made with'
     snl_canvas_render_text_styled(
         &canvas,
         SNL_POINT(0.1*canvas.width, 4.3*canvas.height/5), 
-        "made with", SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0"),
+        "made with", 
+        SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0"),
         SNL_TEXT_STYLE(45, 0, SNL_FONT_GILL_SANS, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_ITALIC, SNL_TEXT_NONE)
     );
 
@@ -61,7 +70,8 @@ void draw_logo(void) {
     snl_canvas_render_text_styled(
         &canvas,
         SNL_POINT(1.17*canvas.width/2, 4.35*canvas.height/5), 
-        "Snail", SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE, NULL, "lg0"),
+        "Snail", 
+        SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE, NULL, "lg0"),
         SNL_TEXT_STYLE(60, 0, SNL_FONT_LUMINARI, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
     );
 
@@ -77,8 +87,7 @@ void draw_logo(void) {
     // Save and destroy canvas
     snl_canvas_save(&canvas, "../imgs/logo.svg");
     snl_canvas_destroy(&canvas);
-}
-```
+}```
 
 This produces the SVG below:
 
