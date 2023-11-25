@@ -21,8 +21,7 @@
  *  - snl_canvas_render_path_move_by
  *  - snl_canvas_render_path_end
  *  - snl_canvas_render_text
- *  - snl_canvas_render_text2
- *  - snl_canvas_render_text3
+ *  - snl_canvas_render_text_styled
  *  - snl_canvas_undo
  *  - snl_canvas_translate
  *  - snl_canvas_reset_translation
@@ -133,18 +132,18 @@ typedef struct SnailAppearance {
 #define SNL_FILL_RULE_DEFAULT SNL_FILL_RULE_NONZERO
 
 // font decoration
-typedef struct SnailTextDecoration {
+typedef struct SnailTextStyle {
     float font_size;
     float text_rotation;
     const char *font_family;
     const char *font_weight;
     const char *font_style;
     const char *text_decoration;
-} snl_text_decoration_t;
+} snl_text_style_t;
 
 // font_size, text_rotation, font_family, font_weight, font_style, text_decoration
-#define SNL_TEXT_DECORATION(fsz, tr, ff, fw, fs, td) ((snl_text_decoration_t) {fsz, tr, ff, fw, fs, td})
-#define SNL_TEXT_DECORATION_DEFAULT(fsz, tr, ff, fw, fs, td) SNL_TEXT_DECORATION(10, 0, SNL_FONT_ARIAL, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
+#define SNL_TEXT_STYLE(fsz, tr, ff, fw, fs, td) ((snl_text_style_t) {fsz, tr, ff, fw, fs, td})
+#define SNL_TEXT_STYLE_DEFAULT(fsz, tr, ff, fw, fs, td) SNL_TEXT_STYLE(10, 0, SNL_FONT_ARIAL, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
 
 // point(x, y)
 typedef struct SnailPoint {
@@ -543,18 +542,18 @@ extern void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl
  */
 extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance_t appearance);
 
-/**
- * @brief Render text to canvas surface with default parameters
- * 
- * @param canvas canvas instance
- * @param pos text position
- * @param text text value
- * @param font_size font size
- * @return None
- * 
- * @note see also <snl_canvas_render_text2()> and <snl_canvas_render_text3()>
- */
-extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size);
+// /**
+//  * @brief Render text to canvas surface with default parameters
+//  * 
+//  * @param canvas canvas instance
+//  * @param pos text position
+//  * @param text text value
+//  * @param font_size font size
+//  * @return None
+//  * 
+//  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text_styled()>
+//  */
+// extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size);
 
 /**
  * @brief Render text to canvas surface with custom font and color
@@ -567,23 +566,23 @@ extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, 
  * @param color text color
  * @return None
  * 
- * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text3()>
+ * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text_styled()>
  */
-extern void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color);
+extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color);
 
 /**
- * @brief Render text to canvas surface with custom parameters
+ * @brief Render text to canvas surface with custom style
  * 
  * @param canvas canvas instance
  * @param pos text position
  * @param text text value
  * @param appearance text appearance (color, stroke, fill, etc.)
- * @param td text decoration settings (underline, rotation, font family, etc.)
+ * @param text_style text style settings (underline, rotation, font family, etc.)
  * @return None
  * 
- * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text2()>
+ * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text()>
  */
-extern void snl_canvas_render_text3(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td);
+extern void snl_canvas_render_text_styled(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_style_t text_style);
 
 /**
  * @brief Undo the last rendering operation

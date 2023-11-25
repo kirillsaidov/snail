@@ -579,36 +579,36 @@ void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance
     }
 }
 
-void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size) {
-    // check for invalid input
-    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
-    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
-    VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+// void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size) {
+//     // check for invalid input
+//     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+//     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+//     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
 
-    // adjust for translation
-    pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
+//     // adjust for translation
+//     pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
-    // rendering
-    const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_BLACK, NULL, NULL);
-    vt_str_appendf(
-        canvas->surface,
-        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)' filter='url(#%s)' ",
-        pos.x, pos.y, SNL_FONT_ARIAL, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, 0.0, appearance.filter == NULL ? "__default__" : appearance.filter
-    );
+//     // rendering
+//     const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_BLACK, NULL, NULL);
+//     vt_str_appendf(
+//         canvas->surface,
+//         "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
+//         "stroke='rgba(%u, %u, %u, %u)' "
+//         "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)' filter='url(#%s)' ",
+//         pos.x, pos.y, SNL_FONT_ARIAL, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE, appearance.stroke_width,
+//         SNL_COLOR_EXPAND(appearance.stroke_color),
+//         appearance.fill_opacity, appearance.stroke_opacity, 0.0, appearance.filter == NULL ? "__default__" : appearance.filter
+//     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'>%s</text>\n", appearance.gradient, text);
-    } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'>%s</text>\n", SNL_COLOR_EXPAND(appearance.fill_color), text);
-    }
-}
+//     // fill color or gradient
+//     if(appearance.gradient) {
+//         vt_str_appendf(canvas->surface, "fill='url(#%s)'>%s</text>\n", appearance.gradient, text);
+//     } else {
+//         vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'>%s</text>\n", SNL_COLOR_EXPAND(appearance.fill_color), text);
+//     }
+// }
 
-void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color) {
+void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
@@ -637,7 +637,7 @@ void snl_canvas_render_text2(snl_canvas_t *const canvas, snl_point_t pos, const 
     }
 }
 
-extern void snl_canvas_render_text3(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_decoration_t td) {
+extern void snl_canvas_render_text_styled(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_style_t text_style) {
     // check for invalid input
     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
@@ -652,9 +652,9 @@ extern void snl_canvas_render_text3(snl_canvas_t *const canvas, snl_point_t pos,
         "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
         "stroke='rgba(%u, %u, %u, %u)' "
         "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)' filter='url(#%s)' ",
-        pos.x, pos.y, td.font_family, td.font_size, td.font_weight, td.font_style, td.text_decoration, appearance.stroke_width,
+        pos.x, pos.y, text_style.font_family, text_style.font_size, text_style.font_weight, text_style.font_style, text_style.text_decoration, appearance.stroke_width,
         SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, td.text_rotation, appearance.filter == NULL ? "__default__" : appearance.filter
+        appearance.fill_opacity, appearance.stroke_opacity, text_style.text_rotation, appearance.filter == NULL ? "__default__" : appearance.filter
     );
 
     // fill color or gradient

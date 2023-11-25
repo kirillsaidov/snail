@@ -78,19 +78,19 @@ void draw_logo(void) {
     );
 
     // text: made with
-    snl_canvas_render_text3(
+    snl_canvas_render_text_styled(
         &canvas,
         SNL_POINT(0.1*canvas.width, 4.3*canvas.height/5), 
         "made with", SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0"),
-        SNL_TEXT_DECORATION(45, 0, SNL_FONT_GILL_SANS, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_ITALIC, SNL_TEXT_NONE)
+        SNL_TEXT_STYLE(45, 0, SNL_FONT_GILL_SANS, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_ITALIC, SNL_TEXT_NONE)
     );
 
     // text: snail
-    snl_canvas_render_text3(
+    snl_canvas_render_text_styled(
         &canvas,
         SNL_POINT(1.17*canvas.width/2, 4.35*canvas.height/5), 
         "Snail", SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE, NULL, "lg0"),
-        SNL_TEXT_DECORATION(60, 0, SNL_FONT_LUMINARI, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
+        SNL_TEXT_STYLE(60, 0, SNL_FONT_LUMINARI, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
     );
 
     // save and destroy canvas
@@ -156,15 +156,14 @@ void draw_test(void) {
     snl_canvas_render_path_end(&canvas, SNL_APPEARANCE_DEFAULT);
 
     // text
-    snl_canvas_render_text(&canvas, SNL_POINT(10, 180), "hello, world!", 14);
-    snl_canvas_render_text2(&canvas, SNL_POINT(10, 195), "hello, world!", 14, SNL_FONT_LUMINARI, SNL_COLOR_CORAL);
-    snl_canvas_render_text3(&canvas, SNL_POINT(10, 215), "hello, world!", 
+    snl_canvas_render_text(&canvas, SNL_POINT(10, 195), "hello, world!", 14, SNL_FONT_LUMINARI, SNL_COLOR_CORAL);
+    snl_canvas_render_text_styled(&canvas, SNL_POINT(10, 215), "hello, world!", 
         SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, NULL, NULL), 
-        SNL_TEXT_DECORATION(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
+        SNL_TEXT_STYLE(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
     );
 
     // undo
-    snl_canvas_render_text(&canvas, SNL_POINT(10, 250), "UNDO THIS!", 18);
+    snl_canvas_render_text(&canvas, SNL_POINT(10, 250), "hello, world!", 14, SNL_FONT_LUMINARI, SNL_COLOR_CORAL);
     snl_canvas_undo(&canvas);
 
     // translate
@@ -181,9 +180,9 @@ void draw_test(void) {
 
     // filter: blur
     snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 230), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_LIME, "b0", NULL));
-    snl_canvas_render_text3(&canvas, SNL_POINT(10, 310), "hello, world!", 
+    snl_canvas_render_text_styled(&canvas, SNL_POINT(10, 310), "hello, world!", 
         SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "b0", NULL), 
-        SNL_TEXT_DECORATION(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
+        SNL_TEXT_STYLE(18, 0, SNL_FONT_TREBUCHET_MS, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_ITALIC, SNL_TEXT_UNDERLINE)
     );
 
     // filter: shadow

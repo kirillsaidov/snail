@@ -65,19 +65,19 @@ void draw_logo(void) {
     );
 
     // text: made with
-    snl_canvas_render_text3(
+    snl_canvas_render_text_styled(
         &canvas,
         SNL_POINT(0.1*canvas.width, 4.3*canvas.height/5), 
         "made with", SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_NONE, NULL, "lg0"),
-        SNL_TEXT_DECORATION(45, 0, SNL_FONT_GILL_SANS, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_ITALIC, SNL_TEXT_NONE)
+        SNL_TEXT_STYLE(45, 0, SNL_FONT_GILL_SANS, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_ITALIC, SNL_TEXT_NONE)
     );
 
     // text: snail
-    snl_canvas_render_text3(
+    snl_canvas_render_text_styled(
         &canvas,
         SNL_POINT(1.17*canvas.width/2, 4.35*canvas.height/5), 
         "Snail", SNL_APPEARANCE(1, 1, SNL_COLOR_BLACK, 1, SNL_COLOR_NONE, NULL, "lg0"),
-        SNL_TEXT_DECORATION(60, 0, SNL_FONT_LUMINARI, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
+        SNL_TEXT_STYLE(60, 0, SNL_FONT_LUMINARI, SNL_FONT_WEIGHT_BOLD, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE)
     );
 
     // save and destroy canvas
