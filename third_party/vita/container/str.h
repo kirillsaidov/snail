@@ -33,6 +33,7 @@
     - vt_str_remove_first
     - vt_str_remove_all
     - vt_str_remove_c
+    - vt_str_replace_c
     - vt_str_strip
     - vt_str_strip_punct
     - vt_str_strip_c
@@ -42,12 +43,15 @@
     - vt_str_split_between
     - vt_str_pop_get_first
     - vt_str_pop_get_last
+    - vt_str_equals_z
+    - vt_str_equals_n
     - vt_str_equals
     - vt_str_starts_with
     - vt_str_ends_with
     - vt_str_apply
     - vt_str_is_numeric
-    - vt_str_capitalize
+    - vt_str_to_uppercase
+    - vt_str_to_lowercase
     - vt_str_index_of
     - vt_str_index_find
     - vt_str_slide_front
@@ -57,10 +61,10 @@
 
 #include <ctype.h>
 #include <stdarg.h>
-#include "common.h"
-#include "../container/plist.h"
+#include "vita/container/common.h"
+#include "vita/container/plist.h"
 
-// temporary buffer size for char[]
+// temporary buffer size
 #define VT_STR_TMP_BUFFER_SIZE 1024
 
 // see core/core.h for definition
@@ -70,7 +74,7 @@ typedef struct VitaBaseArrayType vt_str_t;
     @param z raw C string
     @returns vt_str_t
 */
-vt_str_t vt_str_create_static(const char *const z);
+extern vt_str_t vt_str_create_static(const char *const z);
 
 /** Creates a new dynamic string from a raw C string (allocates additional memory for '\0')
     @param z raw C string
@@ -135,13 +139,13 @@ extern const char *vt_str_z(const vt_str_t *const s);
 
 /** Returns vt_str_t length
     @param s vt_str_t instance
-    @returns vt_str_t length
+    @returns size_t length
 */
 extern size_t vt_str_len(const vt_str_t *const s);
 
 /** Returns vt_str_t capacity
     @param s vt_str_t instance
-    @returns vt_str_t capacity
+    @returns size_t capacity
 */
 extern size_t vt_str_capacity(const vt_str_t *const s);
 
@@ -298,9 +302,43 @@ extern enum VitaStatus vt_str_remove_all(vt_str_t *const s, const char *z);
 
 /** Removes all encountered characters specified by the user from vt_str_t
     @param s vt_str_t instance
-    @param c characters to remove one after another: "\\n ," => remove new line, whitespace, comma
+    @param c characters to remove one after another: "\n ," => remove new line, whitespace, comma
 */
 extern void vt_str_remove_c(vt_str_t *const s, const char *const c);
+
+/** Replace all encountered substrings with the user specified one
+    @param s vt_str_t instance
+    @param sub substring to be replaced
+    @param rsub substring to replace with
+*/
+extern void vt_str_replace(vt_str_t *const s, const char *const sub, const char *const rsub);
+
+/** Replace first encountered substring with the user specified one
+    @param s vt_str_t instance
+    @param sub substring to be replaced
+    @param rsub substring to replace with
+*/
+extern void vt_str_replace_first(vt_str_t *const s, const char *const sub, const char *const rsub);
+
+/** Replace last encountered substring with the user specified one
+    @param s vt_str_t instance
+    @param sub substring to be replaced
+    @param rsub substring to replace with
+*/
+extern void vt_str_replace_last(vt_str_t *const s, const char *const sub, const char *const rsub);
+
+/** Replace all encountered characters with the specified character
+    @param s vt_str_t instance
+    @param c characters to be replaced
+    @param r characters that should be used instead
+
+    @attention assert(strlen(r) <= strlen(c));
+    
+    @note usage case 1: `c='a'`, `r='1'` => replace `'a':'1'`
+    @note usage case 2: `c='abc'`, `r='123'` => replace `'a':'1', 'b':'2', 'c':'3'`
+    @note usage case 2: `c='abcd'`, `r='12'` => replace `'a':'1', 'b':'2', 'c':'2', 'd':'2'`
+*/
+extern void vt_str_replace_c(vt_str_t *const s, const char *const c, const char *const r);
 
 /** Strips leading and tailing whitespace and control symbols
     @param s vt_str_t instance
@@ -319,27 +357,27 @@ extern void vt_str_strip_punct(vt_str_t *const s);
 extern void vt_str_strip_c(vt_str_t *const s, const char *const c);
 
 /** Find a substring
-    @param z haystack
+    @param s vt_str_t haystack
     @param sub substring needle
 
     @returns pointer to the begining of a substring in a string, or `NULL` upon failure
 */
-extern const char *vt_str_find(const char *const z, const char *sub);
+extern const char *vt_str_find(const vt_str_t *const s, const char *sub);
 
 /** Checks if vt_str_t contains a substring
-    @param z haystack
+    @param s vt_str_t haystack
     @param sub substring needle
 
     @returns number of substring instances (needles) in haystack
 */
-extern size_t vt_str_can_find(const char *const z, const char *sub);
+extern size_t vt_str_can_find(const vt_str_t *const s, const char *sub);
 
 /** Splits a string given a separator into substrings
     @param p vt_plist_t instance, if `NULL` allocates
     @param s vt_str_t instance
     @param sep seperator string
 
-    @returns `vt_plist_t` of `vt_str_t`, `NULL` upon failure
+    @returns `vt_plist_t` of `vt_str_t*`, `NULL` upon failure
 */
 extern vt_plist_t *vt_str_split(vt_plist_t *ps, const vt_str_t *const s, const char *const sep);
 
@@ -396,7 +434,7 @@ extern vt_str_t *vt_str_pop_get_last(vt_str_t *sr, vt_str_t *const s, const char
 
     @returns `true` if z1 == z2
 */
-extern bool vt_str_equals(const char *const z1, const char *const z2);
+extern bool vt_str_equals_z(const char *const z1, const char *const z2);
 
 /** Checks if N characters of C strings are the same
     @param z1 raw C string
@@ -407,21 +445,29 @@ extern bool vt_str_equals(const char *const z1, const char *const z2);
 */
 extern bool vt_str_equals_n(const char *const z1, const char *const z2, const size_t n);
 
+/** Checks if two strings are equal
+    @param z1 raw C string
+    @param z2 raw C string
+
+    @returns `true` if z1 == z2
+*/
+extern bool vt_str_equals(const vt_str_t *const s1, const vt_str_t *const s2);
+
 /** Checks if a raw C string starts with a substring
-    @param z raw C string
+    @param s vt_str_t
     @param sub raw C substring
 
     @returns `true` if z starts with sub
 */
-extern bool vt_str_starts_with(const char *const z, const char *const sub);
+extern bool vt_str_starts_with(const vt_str_t *const s, const char *const sub);
 
 /** Checks if a raw C string ends with a substring
-    @param z raw C string
+    @param s vt_str_t
     @param sub raw C substring
 
     @returns `true` if z ends with sub
 */
-extern bool vt_str_ends_with(const char *const z, const char *const sub);
+extern bool vt_str_ends_with(const vt_str_t *const s, const char *const sub);
 
 /** Applies a user specified function upon each char
     @param s vt_str_t
@@ -430,17 +476,20 @@ extern bool vt_str_ends_with(const char *const z, const char *const sub);
 extern void vt_str_apply(const vt_str_t *const s, void (*func)(char*, size_t));
 
 /** Checks if the entire string is a number
-    @param z raw C string
-    @param max_len max len to top checking (internally it uses strnlen)
-
+    @param s vt_str_t
     @returns true upon z being a number
 */
-extern bool vt_str_is_numeric(const char *const z, const size_t max_len);
+extern bool vt_str_is_numeric(const vt_str_t *const s);
 
-/** Capitalizes a string
+/** Converts characters to uppercase
     @param s vt_str_t
 */
-extern void vt_str_capitalize(vt_str_t *const s);
+extern void vt_str_to_uppercase(vt_str_t *const s);
+
+/** Converts characters to lowercase
+    @param s vt_str_t
+*/
+extern void vt_str_to_lowercase(vt_str_t *const s);
 
 /** Returns the index of a first occurance of character in a string
     @param s vt_str_t

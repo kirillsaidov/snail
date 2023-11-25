@@ -15,7 +15,7 @@
  *  - snl_canvas_render_polyline_point
  *  - snl_canvas_render_polyline_end
  *  - snl_canvas_render_curve
- *  - snl_canvas_render_curve2
+ *  - snl_canvas_render_curve_custom
  *  - snl_canvas_render_path_begin
  *  - snl_canvas_render_path_line_to
  *  - snl_canvas_render_path_move_by
@@ -23,6 +23,7 @@
  *  - snl_canvas_render_text
  *  - snl_canvas_render_text_styled
  *  - snl_canvas_undo
+ *  - snl_canvas_clear
  *  - snl_canvas_translate
  *  - snl_canvas_reset_translation
  *  - snl_canvas_fill
@@ -75,6 +76,7 @@ struct SnailColor {
 #define SNL_COLOR_NONE          SNL_COLOR(  0,   0,   0,   0)
 
 // appearance configuration
+// @note {stroke, fill} color will always be prioritized over gradient, unless `SNL_COLOR_NONE` is specified 
 typedef struct SnailAppearance {
     // stroke
     float stroke_width;
@@ -493,7 +495,7 @@ extern void snl_canvas_render_curve(
  * @param appearance outlook
  * @return None
  */
-extern void snl_canvas_render_curve2(
+extern void snl_canvas_render_curve_custom(
     snl_canvas_t *const canvas, 
     snl_point_t start, snl_point_t end, 
     const float curve_height, const float curvature, 
@@ -542,19 +544,6 @@ extern void snl_canvas_render_path_move_by(snl_canvas_t *const canvas, const snl
  */
 extern void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance_t appearance);
 
-// /**
-//  * @brief Render text to canvas surface with default parameters
-//  * 
-//  * @param canvas canvas instance
-//  * @param pos text position
-//  * @param text text value
-//  * @param font_size font size
-//  * @return None
-//  * 
-//  * @note see also <snl_canvas_render_text()> and <snl_canvas_render_text_styled()>
-//  */
-// extern void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size);
-
 /**
  * @brief Render text to canvas surface with custom font and color
  * 
@@ -591,6 +580,14 @@ extern void snl_canvas_render_text_styled(snl_canvas_t *const canvas, snl_point_
  * @return None
  */
 extern void snl_canvas_undo(snl_canvas_t *const canvas);
+
+/**
+ * @brief Clear canvas surface
+ * 
+ * @param canvas canvas instance
+ * @return None
+ */
+extern void snl_canvas_clear(snl_canvas_t *const canvas);
 
 /**
  * @brief Translate canvas view

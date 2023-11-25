@@ -15,7 +15,7 @@ int main(void) {
     printf("- Vita  version: %s\n", vita_version.str);
     printf("- Snail version: %s\n", snail_version.str);
 
-    // draw_test();
+    draw_test();
     draw_logo();
     
     return 0;
@@ -144,8 +144,8 @@ void draw_test(void) {
     // curve
     snl_canvas_render_curve(&canvas, SNL_POINT(10, 80), SNL_POINT(60, 80), SNL_APPEARANCE_DEFAULT);
     snl_canvas_render_curve(&canvas, SNL_POINT(40, 120), SNL_POINT(40, 160), SNL_APPEARANCE(3, 1, SNL_COLOR_GREEN, 1, SNL_COLOR_BLUE, NULL, NULL));
-    snl_canvas_render_curve2(&canvas, SNL_POINT(70, 80), SNL_POINT(140, 80), 80, -40, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_NONE, NULL, NULL));
-    snl_canvas_render_curve2(&canvas, SNL_POINT(120, 120), SNL_POINT(120, 160), 80, 50, SNL_APPEARANCE(5, 1, SNL_COLOR_BROWN, 1, SNL_COLOR_NONE, NULL, NULL));
+    snl_canvas_render_curve_custom(&canvas, SNL_POINT(70, 80), SNL_POINT(140, 80), 80, -40, SNL_APPEARANCE(3, 1, SNL_COLOR_TEAL, 1, SNL_COLOR_NONE, NULL, NULL));
+    snl_canvas_render_curve_custom(&canvas, SNL_POINT(120, 120), SNL_POINT(120, 160), 80, 50, SNL_APPEARANCE(5, 1, SNL_COLOR_BROWN, 1, SNL_COLOR_BLACK, NULL, NULL));
 
     // path
     snl_canvas_render_path_begin(&canvas);
@@ -189,14 +189,18 @@ void draw_test(void) {
     snl_canvas_render_circle(&canvas, SNL_POINT(130, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "s0", NULL));
 
     // gradients: linear
-    snl_canvas_render_circle(&canvas, SNL_POINT(250, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "s0", "lg0"));
-    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 330), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_LIME, NULL, "lg2"));
-    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 420), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_LIME, NULL, "rg0"));
-    snl_canvas_render_circle(&canvas, SNL_POINT(350, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_LIME, "s0", "rg1"));
+    snl_canvas_render_circle(&canvas, SNL_POINT(250, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE, "s0", "lg0"));
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 330), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_NONE, NULL, "lg2"));
+    snl_canvas_render_rectangle(&canvas, SNL_POINT(10, 420), SNL_POINT(60, 60), 0, SNL_APPEARANCE(1, 1, SNL_COLOR_BLUE, 1, SNL_COLOR_NONE, NULL, "rg0"));
+    snl_canvas_render_circle(&canvas, SNL_POINT(350, 250), 25, SNL_APPEARANCE(1, 1, SNL_COLOR_BISTRE, 1, SNL_COLOR_NONE, "s0", "rg1"));
+    snl_canvas_render_circle(&canvas, SNL_POINT(0.5*canvas.width, 0.8*canvas.height), 32, SNL_APPEARANCE(13, 1, SNL_COLOR_NONE, 0, SNL_COLOR_NONE, NULL, "lg2"));
 
     // for reference
     printf("- Canvas   length: %zu\n", vt_str_len(canvas.surface));
     printf("- Canvas capacity: %zu\n", vt_str_capacity(canvas.surface));
+
+    // clear canvas
+    // snl_canvas_clear(&canvas);
 
     // save and destroy canvas
     snl_canvas_save(&canvas, "test.svg");

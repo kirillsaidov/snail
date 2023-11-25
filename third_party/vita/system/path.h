@@ -4,7 +4,7 @@
 /** PATH MODULE
     - vt_path_build
     - vt_path_build_n
-    - vt_path_getcwd
+    - vt_path_get_cwd
     - vt_path_exists
     - vt_path_is_dir
     - vt_path_is_file
@@ -24,9 +24,9 @@
     - vt_path_validate
 */
 
-#include "../core/core.h"
-#include "../container/str.h"
-#include "../container/plist.h"
+#include "vita/core/core.h"
+#include "vita/container/str.h"
+#include "vita/container/plist.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -37,8 +37,8 @@
     #include <direct.h>
     #include <windows.h>
     
-    #define PATH_SEPARATOR "\\"
-    #define DIR_PERMISSIONS NULL
+    #define VT_PATH_SEPARATOR "\\"
+    #define VT_DIR_PERMISSIONS NULL
 
     #define getcwd _getcwd
     #define mkdir CreateDirectory
@@ -53,8 +53,8 @@
     #include <dirent.h>
     #include <libgen.h>
 
-    #define PATH_SEPARATOR "/"
-    #define DIR_PERMISSIONS (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
+    #define VT_PATH_SEPARATOR "/"
+    #define VT_DIR_PERMISSIONS (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
 #endif
 
 /** Builds path from raw C strings
@@ -80,11 +80,11 @@ extern vt_str_t *vt_path_build_n(vt_str_t *const s, const size_t n, ...);
 
     @note if `alloctr = NULL` is specified, then vt_calloc/realloc/free is used.
 */
-extern vt_str_t *vt_path_getcwd(struct VitaBaseAllocatorType *alloctr);
+extern vt_str_t *vt_path_get_cwd(struct VitaBaseAllocatorType *alloctr);
 
-/** Checks if path exists
+/** Checks if path or file exists
     @param z path
-    @returns `true` if directory exists
+    @returns `true` if directory or file exists
 */
 extern bool vt_path_exists(const char *const z);
 
@@ -156,7 +156,7 @@ extern bool vt_path_mkdir_parents(const char *const z);
 */
 extern bool vt_path_rmdir(const char *const z);
 
-/** Deletes an directory and its contents
+/** Deletes a directory and its contents
     @param z a raw C string
     @returns `true` upon success, `false` otherwise
 */
@@ -169,8 +169,8 @@ extern bool vt_path_rmdir_recurse(const char *const z);
 extern bool vt_path_remove(const char *const z);
 
 /** Rename/move a directory/file
-    @param z1 file/directory
-    @param z2 new file/directory
+    @param z1 old file/directory name
+    @param z2 new file/directory name
 
     @returns `true` upon success, `false` otherwise
 */

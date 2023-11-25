@@ -3,16 +3,18 @@
 #include <math.h>
 
 // expand color
+#define SNL_FILTER_DEFAULT "__default__"
 #define SNL_COLOR_EXPAND(color) color.r, color.g, color.b, color.a
 
 static bool snl_can_continue();
+static bool snl_color_cmp(const struct SnailColor a, const struct SnailColor b);
 static void snl_rotate(const float angle, float *x1, float *y1, float *x2, float *y2);
 
 snl_canvas_t snl_canvas_create(const float width, const float height) {
     snl_canvas_t canvas = (snl_canvas_t) {
         .width = width, 
         .height = height,
-        .surface = vt_str_create_capacity(512, NULL)
+        .surface = vt_str_create_capacity(VT_STR_TMP_BUFFER_SIZE, NULL)
     };
 
     // initialize the canvas
@@ -23,7 +25,7 @@ snl_canvas_t snl_canvas_create(const float width, const float height) {
     );
 
     // add the __default__ filter
-    snl_canvas_add_filter_blur(&canvas, "__default__", 0, 0);
+    snl_canvas_add_filter_blur(&canvas, SNL_FILTER_DEFAULT, 0, 0);
 
     return canvas;
 }
@@ -249,15 +251,32 @@ void snl_canvas_render_line(
     start = SNL_POINT_ADJUST(start, canvas->translateX, canvas->translateY);
     end = SNL_POINT_ADJUST(end, canvas->translateX, canvas->translateY);
 
-    // render
+    // open tag
     vt_str_appendf(
         canvas->surface, 
-        "<line x1='%.2f' y1='%.2f' x2='%.2f' y2='%.2f' "
-        "style='stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;stroke-opacity:%.2f;filter:url(#%s)'/>\n", 
-        start.x, start.y, end.x, end.y,
-        appearance.stroke_color.r, appearance.stroke_color.g, appearance.stroke_color.b, appearance.stroke_color.a,
-        appearance.stroke_width, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<line x1='%.2f' y1='%.2f' x2='%.2f' y2='%.2f' ",
+        start.x, start.y, end.x, end.y
     );
+
+    // style
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "style='stroke:url(#%s);stroke-width:%.2f;stroke-opacity:%.2f;filter:url(#%s)' ", 
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity, 
+            appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "style='stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;stroke-opacity:%.2f;filter:url(#%s)' ", 
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity, 
+            appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_circle(
@@ -273,22 +292,45 @@ void snl_canvas_render_circle(
     // adjust for translation
     origin = SNL_POINT_ADJUST(origin, canvas->translateX, canvas->translateY);
 
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<circle cx='%.2f' cy='%.2f' r='%.2f' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' filter='url(#%s)' ",
-        origin.x, origin.y, radius, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<circle cx='%.2f' cy='%.2f' r='%.2f' ",
+        origin.x, origin.y, radius
     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_ellipse(
@@ -304,23 +346,45 @@ void snl_canvas_render_ellipse(
     // adjust for translation
     origin = SNL_POINT_ADJUST(origin, canvas->translateX, canvas->translateY);
 
-    // render
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<ellipse cx='%.2f' cy='%.2f' rx='%.2f' ry='%.2f' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' " 
-        "fill-opacity='%.2f' stroke-opacity='%.2f' filter='url(#%s)' ",
-        origin.x, origin.y, radius.x, radius.y, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<ellipse cx='%.2f' cy='%.2f' rx='%.2f' ry='%.2f' ",
+        origin.x, origin.y, radius.x, radius.y
     );
-    
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_rectangle(
@@ -336,22 +400,45 @@ void snl_canvas_render_rectangle(
     // adjust for translation
     pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
-    // render
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<rect x='%.2f' y='%.2f' width='%.2f' height='%.2f' rx='%.2f' ry='%.2f' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f' filter='url(#%s)' ",
-        pos.x, pos.y, size.x, size.y, radius, radius, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<rect x='%.2f' y='%.2f' width='%.2f' height='%.2f' rx='%.2f' ry='%.2f' ",
+        pos.x, pos.y, size.x, size.y, radius, radius
     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_polygon_begin(snl_canvas_t *const canvas) {
@@ -383,20 +470,43 @@ void snl_canvas_render_polygon_end(snl_canvas_t *const canvas, const snl_appeara
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polygon_begin()' before using 'snl_render_polygon_end()'.\n");
 
-    // render
-    vt_str_appendf(
-        canvas->surface,
-        "' style='stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;fill-opacity:%.2f;stroke-opacity:%.2f;fill-rule:%s;filter:url(#%s)' ",
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity, fill_rule, appearance.filter == NULL ? "__default__" : appearance.filter
-    );
+    // open tag
+    vt_str_appendf(canvas->surface, "%s", "' ");
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' fill-rule='%s' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, fill_rule,
+            appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' fill-rule='%s' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, fill_rule,
+            appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_polyline_begin(snl_canvas_t *const canvas) {
@@ -428,20 +538,41 @@ void snl_canvas_render_polyline_end(snl_canvas_t *const canvas, const snl_appear
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_polyline_begin()' before using 'snl_render_polyline_end()'.\n");
 
-    // render
-    vt_str_appendf(
-        canvas->surface,
-        "' style='stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;fill-opacity:%.2f;stroke-opacity:%.2f;filter:url(#%s)' ",
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
-    );
+    // open tag
+    vt_str_appendf(canvas->surface, "%s", "' ");
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_curve(
@@ -463,25 +594,48 @@ void snl_canvas_render_curve(
     const float curve_height = (delta_end.x + delta_end.y) / 2; 
     const float curvature = (delta_end.x + delta_end.y) / 2; 
 
-    // rendering
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<path d='M %.2f %.2f q %.2f %.2f %.2f %.2f' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f' filter='url(#%s)' ",
-        start.x, start.y, curve_height, curvature, delta_end.x, delta_end.y, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<path d='M %.2f %.2f q %.2f %.2f %.2f %.2f' ",
+        start.x, start.y, curve_height, curvature, delta_end.x, delta_end.y
     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
-void snl_canvas_render_curve2(
+void snl_canvas_render_curve_custom(
     snl_canvas_t *const canvas, 
     snl_point_t start, snl_point_t end, 
     const float curve_height, const float curvature, 
@@ -499,22 +653,45 @@ void snl_canvas_render_curve2(
     // calculte curve_height and curvature
     const snl_point_t delta_end = SNL_POINT(end.x - start.x, end.y - start.y);
 
-    // rendering
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<path d='M %.2f %.2f q %.2f %.2f %.2f %.2f' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' stroke-opacity='%.2f' filter='url(#%s)'/>\n",
-        start.x, start.y, curve_height, curvature, delta_end.x, delta_end.y, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<path d='M %.2f %.2f q %.2f %.2f %.2f %.2f' ",
+        start.x, start.y, curve_height, curvature, delta_end.x, delta_end.y
     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
 
 void snl_canvas_render_path_begin(snl_canvas_t *const canvas) {
@@ -563,50 +740,42 @@ void snl_canvas_render_path_end(snl_canvas_t *const canvas, const snl_appearance
     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
     VT_ENFORCE(!snl_can_continue(canvas), "Error: you need to 'snl_render_path_begin()' before using 'snl_render_path_end()'.\n");
 
-    // render
-    vt_str_appendf(
-        canvas->surface,
-        "' style='stroke:rgba(%u, %u, %u, %u);stroke-width:%.2f;fill-opacity:%.2f;stroke-opacity:%.2f;filter:url(#%s)' ",
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.stroke_width, appearance.fill_opacity, appearance.stroke_opacity, appearance.filter == NULL ? "__default__" : appearance.filter
-    );
+    // open tag
+    vt_str_appendf(canvas->surface, "%s", "' ");
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'/>\n", appearance.gradient);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'/>\n", SNL_COLOR_EXPAND(appearance.fill_color));
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "%s", "/>\n");
 }
-
-// void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size) {
-//     // check for invalid input
-//     VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
-//     VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
-//     VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
-
-//     // adjust for translation
-//     pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
-
-//     // rendering
-//     const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, SNL_COLOR_BLACK, NULL, NULL);
-//     vt_str_appendf(
-//         canvas->surface,
-//         "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
-//         "stroke='rgba(%u, %u, %u, %u)' "
-//         "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)' filter='url(#%s)' ",
-//         pos.x, pos.y, SNL_FONT_ARIAL, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE, appearance.stroke_width,
-//         SNL_COLOR_EXPAND(appearance.stroke_color),
-//         appearance.fill_opacity, appearance.stroke_opacity, 0.0, appearance.filter == NULL ? "__default__" : appearance.filter
-//     );
-
-//     // fill color or gradient
-//     if(appearance.gradient) {
-//         vt_str_appendf(canvas->surface, "fill='url(#%s)'>%s</text>\n", appearance.gradient, text);
-//     } else {
-//         vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'>%s</text>\n", SNL_COLOR_EXPAND(appearance.fill_color), text);
-//     }
-// }
 
 void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const float font_size, const char *const font_family, const struct SnailColor color) {
     // check for invalid input
@@ -617,24 +786,48 @@ void snl_canvas_render_text(snl_canvas_t *const canvas, snl_point_t pos, const c
     // adjust for translation
     pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
-    // rendering
-    const struct SnailAppearance appearance = SNL_APPEARANCE(0, 1, SNL_COLOR_NONE, 1, color, NULL, NULL);
+    // default appearance
+    const snl_appearance_t appearance = SNL_APPEARANCE(0, 1, color, 1, color, NULL, NULL);
+
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)' filter='url(#%s)' ",
-        pos.x, pos.y, font_family, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, 0.0, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' ",
+        pos.x, pos.y, font_family, font_size, SNL_FONT_WEIGHT_NORMAL, SNL_FONT_STYLE_NORMAL, SNL_TEXT_NONE
     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'>%s</text>\n", appearance.gradient, text);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'>%s</text>\n", SNL_COLOR_EXPAND(appearance.fill_color), text);
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "transform='rotate(%.2f)'>%s</text>\n", 0, text);
 }
 
 extern void snl_canvas_render_text_styled(snl_canvas_t *const canvas, snl_point_t pos, const char* const text, const snl_appearance_t appearance, snl_text_style_t text_style) {
@@ -646,23 +839,45 @@ extern void snl_canvas_render_text_styled(snl_canvas_t *const canvas, snl_point_
     // adjust for translation
     pos = SNL_POINT_ADJUST(pos, canvas->translateX, canvas->translateY);
 
-    // rendering
+    // open tag
     vt_str_appendf(
         canvas->surface,
-        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' stroke-width='%.2f' "
-        "stroke='rgba(%u, %u, %u, %u)' "
-        "fill-opacity='%.2f' stroke-opacity='%.2f' transform='rotate(%.2f)' filter='url(#%s)' ",
-        pos.x, pos.y, text_style.font_family, text_style.font_size, text_style.font_weight, text_style.font_style, text_style.text_decoration, appearance.stroke_width,
-        SNL_COLOR_EXPAND(appearance.stroke_color),
-        appearance.fill_opacity, appearance.stroke_opacity, text_style.text_rotation, appearance.filter == NULL ? "__default__" : appearance.filter
+        "<text x='%.2f' y='%.2f' font-family='%s' font-size='%.2f' font-weight='%s' font-style='%s' text-decoration='%s' ",
+        pos.x, pos.y, text_style.font_family, text_style.font_size, text_style.font_weight, text_style.font_style, text_style.text_decoration
     );
 
-    // fill color or gradient
-    if(appearance.gradient) {
-        vt_str_appendf(canvas->surface, "fill='url(#%s)'>%s</text>\n", appearance.gradient, text);
+    // style: stoke
+    if (snl_color_cmp(appearance.stroke_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='url(#%s)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            appearance.gradient, appearance.stroke_width, appearance.stroke_opacity
+        );
     } else {
-        vt_str_appendf(canvas->surface, "fill='rgba(%u, %u, %u, %u)'>%s</text>\n", SNL_COLOR_EXPAND(appearance.fill_color), text);
+        vt_str_appendf(
+            canvas->surface,
+            "stroke='rgba(%u, %u, %u, %u)' stroke-width='%.2f' stroke-opacity='%.2f' ",
+            SNL_COLOR_EXPAND(appearance.stroke_color), appearance.stroke_width, appearance.stroke_opacity
+        );
     }
+
+    // style: fill
+    if (snl_color_cmp(appearance.fill_color, SNL_COLOR_NONE) && appearance.gradient) {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='url(#%s)' fill-opacity='%.2f' filter='url(#%s)' ",
+            appearance.gradient, appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    } else {
+        vt_str_appendf(
+            canvas->surface,
+            "fill='rgba(%u, %u, %u, %u)' fill-opacity='%.2f' filter='url(#%s)' ",
+            SNL_COLOR_EXPAND(appearance.fill_color), appearance.fill_opacity, appearance.filter ? appearance.filter : SNL_FILTER_DEFAULT
+        );
+    }
+    
+    // close tag
+    vt_str_appendf(canvas->surface, "transform='rotate(%.2f)'>%s</text>\n", text_style.text_rotation, text);
 }
 
 void snl_canvas_undo(snl_canvas_t *const canvas) {
@@ -680,6 +895,17 @@ void snl_canvas_undo(snl_canvas_t *const canvas) {
             break;
         }
     }
+}
+
+void snl_canvas_clear(snl_canvas_t *const canvas) {
+    // check for invalid input
+    VT_DEBUG_ASSERT(canvas != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_INVALID_ARGUMENTS));
+    VT_DEBUG_ASSERT(canvas->surface != NULL, "%s\n", vt_status_to_str(VT_STATUS_ERROR_IS_NULL));
+    VT_ENFORCE(snl_can_continue(canvas), "Error: did you forget call 'snl_render_xxx_end()' after 'snl_render_xxx_begin()'?\n");
+
+    // undo all canvas operations
+    const size_t remove_from_idx = vt_str_index_find(canvas->surface, "\n");
+    vt_str_remove(canvas->surface, remove_from_idx + 1, vt_str_len(canvas->surface) - remove_from_idx - 1);
 }
 
 void snl_canvas_translate(snl_canvas_t *const canvas, const float x, const float y) {
@@ -722,7 +948,7 @@ void snl_canvas_save(const snl_canvas_t *const canvas, const char *const filenam
     vt_str_append(canvas->surface, "</svg>");
 
     // save
-    vt_file_writeln(filename, vt_str_z(canvas->surface));
+    vt_file_write(filename, vt_str_z(canvas->surface));
 }
 
 // ------------------------------- PRIVATE ------------------------------- //
@@ -737,6 +963,21 @@ static bool snl_can_continue(const snl_canvas_t *const canvas) {
     const size_t len = vt_str_len(canvas->surface);
 
     return surface[len - 1] == '\n';
+}
+
+/**
+ * @brief Compare colors for equality
+ * @param a struct SnailColor
+ * @param b struct SnailColor
+ * @return bool 
+ */
+static bool snl_color_cmp(const struct SnailColor a, const struct SnailColor b) {
+    return (
+        a.r == b.r && 
+        a.g == b.g && 
+        a.b == b.b && 
+        a.a == b.a
+    );
 }
 
 /**

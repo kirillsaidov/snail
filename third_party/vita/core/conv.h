@@ -25,8 +25,8 @@
 */
 
 #include <inttypes.h>
-#include "../core/core.h"
-#include "../container/str.h"
+#include "vita/core/core.h"
+#include "vita/container/str.h"
 
 #define VT_MAX_PRECISION 48
 
@@ -56,7 +56,7 @@
 
 /** Convert from string
     @param z C string
-    @returns numerical value
+    @returns numerical value (or 0 upon failure)
 */
 #define VT_PROTOTYPE_CONV_FROM_STR(T, t) extern T vt_conv_str_to_##t(const char *const z);
 VT_PROTOTYPE_CONV_FROM_STR(int8_t, i8)

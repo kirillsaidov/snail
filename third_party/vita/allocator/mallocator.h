@@ -19,8 +19,8 @@
     - vt_mallocator_print_stats
 */
 
-#include "../core/core.h"
-#include "../util/debug.h"
+#include "vita/core/core.h"
+#include "vita/util/debug.h"
 
 // macros
 #define VT_ALLOCATOR_ALLOC(alloctr, bytes) alloctr->alloc(alloctr, bytes, __SOURCE_FILENAME__, __func__, __LINE__)
@@ -66,7 +66,7 @@ typedef struct VitaBaseAllocatorType vt_mallocator_t;
 */
 extern vt_mallocator_t *vt_mallocator_create(void);
 
-/** Destroys a mallocator object
+/** Frees all allocated memory and destroys the mallocator object
     @param alloctr vt_mallocator_t object
 */
 extern void vt_mallocator_destroy(vt_mallocator_t *alloctr);

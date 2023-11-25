@@ -13,17 +13,19 @@
     - vt_plist_clear
     - vt_plist_set
     - vt_plist_get
-    - vt_plist_push
+    - vt_plist_push_front
+    - vt_plist_push_back
     - vt_plist_pop
     - vt_plist_pop_get
     - vt_plist_remove
+    - vt_plist_remove_element
     - vt_plist_slide_front
     - vt_plist_slide_back
     - vt_plist_slide_reset
     - vt_plist_apply
 */
 
-#include "common.h"
+#include "vita/container/common.h"
 
 // new pointer list type
 typedef struct VitaBaseArrayType vt_plist_t;
@@ -126,11 +128,17 @@ extern void vt_plist_set(vt_plist_t *const p, const void *const ptr, const size_
 */
 extern void *vt_plist_get(const vt_plist_t *const p, const size_t at);
 
+/** Push value at the begining
+    @param p vt_plist_t pointer
+    @param ptr pointer value
+*/
+extern void vt_plist_push_front(vt_plist_t *const p, const void *const ptr);
+
 /** Push value at the end
     @param p vt_plist_t pointer
     @param ptr pointer value
 */
-extern void vt_plist_push(vt_plist_t *const p, const void *const ptr);
+extern void vt_plist_push_back(vt_plist_t *const p, const void *const ptr);
 
 /** Pop the last value from the end
     @param p vt_plist_t pointer
@@ -153,6 +161,17 @@ extern void *vt_plist_pop_get(vt_plist_t *const p);
         rs_fast: swaps the last value with the value of `at`
 */
 extern void vt_plist_remove(vt_plist_t *const p, const size_t at, const enum VitaRemoveStrategy rs);
+
+/** Removes the first encountered pointer from a plist
+    @param p vt_plist_t pointer
+    @param ptr pointer to remove
+
+    @note
+        enum VitaRemoveStrategy { VT_REMOVE_STRATEGY_STABLE = ordered removal, rs_fast = unordered removal }
+        VT_REMOVE_STRATEGY_STABLE: shifts all values by element size
+        rs_fast: swaps the last value with the value of `at`
+*/
+extern void vt_plist_remove_element(vt_plist_t *const p, const void *const ptr, const enum VitaRemoveStrategy rs);
 
 /** Checks if vt_plist_t contains the specified element (pointer)
     @param p vt_plist_t instance
