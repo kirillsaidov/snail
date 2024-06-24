@@ -20,9 +20,10 @@ file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/inc/*.h)
 
 # include directories
 include_directories(${PROJECT_SOURCE_DIR}/inc/)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/vita/inc) # add vita submodule include directory
 
 # building library/binary
+add_subdirectory("third_party/vita") # build vita submodule
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS}) # for libraries
 # add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})   # for binaries
 
