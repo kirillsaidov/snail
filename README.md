@@ -95,7 +95,12 @@ This produces the SVG below:
 <img src="imgs/logo.svg" width="348">
 
 ## Building the library
-```
+```sh
+# clone repo with submodules
+$ git clone --recurse-submodules https://github.com/kirillsaidov/snail.git
+
+# build library
+$ cd snail/
 $ ./build.sh    # linux, macos
 $ ./build.bat   # windows
 ```
