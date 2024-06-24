@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 # project name init
 project(
     snail
-	VERSION 0.0.1
+	VERSION 0.0.2
     DESCRIPTION "Snail - a small SVG library for simple graphics rendering and experiments."
 	LANGUAGES C
 )
